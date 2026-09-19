@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trading Decision Flow</title>
+  <title>Trading Entry Guide</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -29,13 +29,6 @@
       }
     }
   </script>
-  <style>
-    /* Custom Scrollbar matching original dark theme */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0b0f19; }
-    ::-webkit-scrollbar-thumb { background: #232e47; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-  </style>
 </head>
 <body class="min-h-screen bg-trade-bg text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
@@ -81,7 +74,7 @@
       </div>
     </div>
 
-    <!-- Next Buttons / Options Grid (4-Column Card Layout) -->
+    <!-- Next Buttons / Options Grid (4-Column Layout) -->
     <div id="buttonsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
   </main>
 
@@ -133,7 +126,7 @@
             <textarea id="editPageDesc" rows="2" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Embed)</label>
+            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Youtube Embed)</label>
             <input type="text" id="editPageVideo" placeholder="https://..." class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
           </div>
         </div>
@@ -222,7 +215,7 @@
       document.getElementById('pageTitle').textContent = page.title;
       document.getElementById('pageDesc').textContent = page.description || '';
 
-      // Video Setup
+      // Video Setup (Autoplay Muted)
       const videoSec = document.getElementById('videoSection');
       const videoCont = document.getElementById('videoContainer');
       videoCont.innerHTML = '';
@@ -249,7 +242,7 @@
         videoSec.classList.add('hidden');
       }
 
-      // Buttons Grid (Original HTML Palette & Layout)
+      // Buttons Grid (Original HTML Style & Palette)
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
