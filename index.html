@@ -77,7 +77,7 @@
     <!-- Page Title -->
     <h2 id="pageTitle" class="text-2xl md:text-3xl font-bold text-slate-100 mb-4 tracking-tight">Loading...</h2>
 
-    <!-- VIDEO PLAYER CONTAINER (Bordered Screen) -->
+    <!-- VIDEO PLAYER CONTAINER -->
     <div id="videoSection" class="mb-5 w-full bg-[#030712] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative aspect-video max-h-[520px]">
       <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
     </div>
@@ -94,7 +94,7 @@
       <div id="checklistsList" class="space-y-2.5 text-xs text-slate-300"></div>
     </div>
 
-    <!-- BUTTONS / OPTIONS GRID (4 Column Card Layout) -->
+    <!-- BUTTONS / OPTIONS GRID -->
     <div id="buttonsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10"></div>
   </main>
 
@@ -112,10 +112,10 @@
         <h3 class="font-bold text-base flex items-center gap-2 text-slate-200">
           <span>⚙️</span> Management Panel
         </h3>
-        <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+        <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">✕</button>
       </div>
 
-      <!-- Admin Pass -->
+      <!-- Admin Pass Section -->
       <div id="adminAuthSection" class="p-8 text-center">
         <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ</p>
         <input type="password" id="adminPassInput" class="w-full max-w-xs bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center" placeholder="Password">
@@ -137,10 +137,6 @@
         </div>
 
         <div class="space-y-3">
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Step Badge Text</label>
-            <input type="text" id="editStepBadge" placeholder="STEP 1: TREND DIRECTION" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
-          </div>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Page Title</label>
             <input type="text" id="editPageTitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
@@ -211,7 +207,11 @@
     }
 
     async function fetchAllPagesList() {
-      const { data } = await supabaseClient.from('pages').select('id, title');
+      const { data, error } = await supabaseClient.from('pages').select('id, title');
+      if (error) {
+        console.error("Fetch Pages Error:", error);
+        return;
+      }
       allPages = data || [];
       const select = document.getElementById('adminPageSelect');
       select.innerHTML = '';
@@ -225,8 +225,11 @@
 
     async function renderPage(pageId) {
       currentStepId = pageId;
-      const { data: page } = await supabaseClient.from('pages').select('*').eq('id', pageId).single();
-      if (!page) return;
+      const { data: page, error } = await supabaseClient.from('pages').select('*').eq('id', pageId).single();
+      if (error || !page) {
+        console.error("Render Page Error:", error);
+        return;
+      }
 
       // Badge & Title
       document.getElementById('stepBadge').textContent = (page.id === 'step1') ? "STEP 1: TREND DIRECTION" : page.id.toUpperCase();
@@ -277,7 +280,7 @@
         clCard.classList.add('hidden');
       }
 
-      // Buttons Render (Image Card Style)
+      // Buttons Render
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
@@ -404,7 +407,7 @@
         div.innerHTML = `
           <div class="flex justify-between items-center">
             <span class="text-blue-400 font-bold">Button #${i + 1}</span>
-            <button type="button" onclick="removeButton(${i})" class="text-rose-400 hover:text-rose-300">🗑️ Delete</button>
+            <button type="button" onclick="removeButton(${i})" class="text-rose-400 hover:text-rose-300 cursor-pointer">🗑️ Delete</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <input type="text" value="${btn.label || ''}" placeholder="Button Name (HH → HL)" oninput="currentEditButtons[${i}].label = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
@@ -442,6 +445,7 @@
       renderAdminButtons();
     }
 
+    // Save Logic (Update DB -> Close Modal -> Re-render Instant)
     async function saveChangesToSupabase() {
       const pageId = document.getElementById('adminPageSelect').value;
       const title = document.getElementById('editPageTitle').value;
@@ -457,28 +461,54 @@
       saveBtn.textContent = 'Saving...';
 
       try {
-        await supabaseClient.from('pages').update({ title, description, video_url, checklist }).eq('id', pageId);
-        await supabaseClient.from('buttons').delete().eq('page_id', pageId);
+        // ၁။ Pages table ကို Update ပြုလုပ်ခြင်း
+        const { error: pageErr } = await supabaseClient
+          .from('pages')
+          .update({ title, description, video_url, checklist })
+          .eq('id', pageId);
 
+        if (pageErr) throw pageErr;
+
+        // ၂။ Button အဟောင်းများကို Delete ပြုလုပ်ခြင်း
+        const { error: delErr } = await supabaseClient
+          .from('buttons')
+          .delete()
+          .eq('page_id', pageId);
+
+        if (delErr) throw delErr;
+
+        // ၃။ Button အသစ်များကို Insert ပြုလုပ်ခြင်း
         if (currentEditButtons.length > 0) {
           const toInsert = currentEditButtons.map((b, idx) => ({
             page_id: pageId,
             label: b.label,
-            subtitle: b.subtitle,
+            subtitle: b.subtitle || '',
             tag: b.tag || 'OPTION',
             tag_color: b.tag_color || 'blue',
             target_step: b.target_step,
-            image_url: b.image_url,
+            image_url: b.image_url || '',
             order_index: idx
           }));
-          await supabaseClient.from('buttons').insert(toInsert);
+
+          const { error: insErr } = await supabaseClient
+            .from('buttons')
+            .insert(toInsert);
+
+          if (insErr) throw insErr;
         }
 
         alert('အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!');
+
+        // Modal ကို ပိတ်သိမ်းခြင်း
+        closeAdminModal();
+
+        // ချက်ချင်း Live Update ဖြစ်စေရန် ပြန်လည် ဆွဲတင်ခြင်း
         await fetchAllPagesList();
-        if (currentStepId === pageId) renderPage(pageId);
+        await renderPage(pageId);
+
       } catch (err) {
-        alert("Error: " + err.message);
+        console.error("Save Error:", err);
+        alert("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပေါ်ခဲ့သည်: " + (err.message || JSON.stringify(err)));
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save All Changes';
