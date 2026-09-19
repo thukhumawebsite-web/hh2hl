@@ -36,10 +36,10 @@
 </head>
 <body class="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white font-sans antialiased">
 
-  <!-- TOP HEADER -->
-  <header class="border-b border-slate-800/80 bg-[#080d1a]/90 backdrop-blur-md sticky top-0 z-30 px-6 py-3">
+  <!-- TOP HEADER (z-40) -->
+  <header class="border-b border-slate-800/80 bg-[#080d1a]/95 backdrop-blur-md sticky top-0 z-40 px-6 py-3">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3 cursor-pointer" onclick="resetToHome()">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('step1')">
         <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20">
           📈
         </div>
@@ -54,28 +54,30 @@
           <span>⚙️</span>
           <span>Admin Panel</span>
         </button>
-        <button type="button" onclick="resetToHome()" class="p-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700/60 transition cursor-pointer" title="Home">
+        <button type="button" onclick="navigateTo('step1')" class="p-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700/60 transition cursor-pointer" title="Home">
           🏠
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER -->
-  <main class="max-w-6xl mx-auto w-full px-4 py-5 flex-1">
-    
-    <!-- Top Step Badge & Breadcrumbs -->
-    <div class="flex items-center gap-2 mb-3">
-      <span id="stepBadge" class="text-[10px] font-bold tracking-wider text-blue-400 bg-blue-950/70 border border-blue-800/60 px-2.5 py-0.5 rounded uppercase font-mono">
-        STEP 1: TREND DIRECTION
-      </span>
-      <nav id="breadcrumbs" class="flex items-center gap-1.5 text-xs text-slate-500 ml-1 overflow-x-auto py-0.5"></nav>
+  <!-- STICKY STEP TITLE & BREADCRUMBS BAR (Scroll ဆွဲသော်လည်း မကွယ်ဘဲ အမြဲပေါ်နေမည့် Bar) -->
+  <div class="sticky top-[57px] z-30 bg-[#060911]/95 backdrop-blur-md border-b border-slate-800/60 py-2.5 px-4 shadow-md">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-wrap items-center gap-2 mb-1">
+        <span id="stepBadge" class="text-[10px] font-bold tracking-wider text-blue-400 bg-blue-950/80 border border-blue-800/80 px-2.5 py-0.5 rounded uppercase font-mono shadow-sm">
+          STEP 1: TREND DIRECTION
+        </span>
+        <nav id="breadcrumbs" class="flex items-center gap-1.5 text-xs text-slate-400 overflow-x-auto py-0.5"></nav>
+      </div>
+      <h2 id="pageTitle" class="text-lg md:text-xl font-bold text-slate-100 tracking-tight">Loading...</h2>
     </div>
+  </div>
 
-    <!-- Page Title -->
-    <h2 id="pageTitle" class="text-xl md:text-2xl font-bold text-slate-100 mb-3 tracking-tight">Loading...</h2>
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-6xl mx-auto w-full px-4 py-4 flex-1">
 
-    <!-- VIDEO PLAYER CONTAINER (Clean Dark Border) -->
+    <!-- VIDEO PLAYER CONTAINER -->
     <div id="videoSection" class="mb-4 w-full bg-black border border-slate-800/90 rounded-2xl overflow-hidden shadow-2xl relative aspect-video max-h-[480px]">
       <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
     </div>
@@ -92,7 +94,7 @@
       <div id="checklistsList" class="space-y-2 text-xs text-slate-300"></div>
     </div>
 
-    <!-- BUTTONS / OPTIONS GRID (4 Column Card Layout matching original) -->
+    <!-- BUTTONS / OPTIONS GRID -->
     <div id="buttonsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
   </main>
 
@@ -191,6 +193,27 @@
       document.getElementById('adminModal').classList.add('hidden');
     }
 
+    // BROWSER BACK / FORWARD BUTTON စနစ် ချိတ်ဆက်ခြင်း
+    window.addEventListener('popstate', (event) => {
+      const stepId = event.state?.stepId || getStepFromUrl() || 'step1';
+      syncHistoryStackOnBack(stepId);
+      renderPage(stepId, false); // false ဆိုသည်မှာ browser history ထဲ push ထပ်မလုပ်ရန် ဖြစ်သည်
+    });
+
+    function getStepFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('step');
+    }
+
+    function syncHistoryStackOnBack(stepId) {
+      const idx = historyStack.indexOf(stepId);
+      if (idx !== -1) {
+        historyStack = historyStack.slice(0, idx + 1);
+      } else {
+        historyStack.push(stepId);
+      }
+    }
+
     async function initSystem() {
       try {
         const supabaseLib = window.supabase || window.Supabase;
@@ -202,7 +225,15 @@
 
         supabaseClient = supabaseLib.createClient(config.supabaseUrl, config.supabaseKey);
 
-        await renderPage(currentStepId);
+        // URL တွင် ?step= ပါလာပါက ၎င်း Step မှ စတင်မည်
+        const initialStep = getStepFromUrl() || 'step1';
+        currentStepId = initialStep;
+        historyStack = (initialStep === 'step1') ? ['step1'] : ['step1', initialStep];
+
+        // လက်ရှိ URL state ကို replace လုပ်ထားခြင်း
+        window.history.replaceState({ stepId: initialStep }, '', `?step=${initialStep}`);
+
+        await renderPage(initialStep, false);
       } catch (err) {
         console.error(err);
         document.getElementById('pageTitle').textContent = "Connection Error";
@@ -210,12 +241,17 @@
       }
     }
 
-    async function renderPage(pageId) {
+    // shouldPushState boolean parameter ထည့်သွင်းထားသည် (default: true)
+    async function renderPage(pageId, shouldPushState = true) {
       currentStepId = pageId;
+
+      if (shouldPushState) {
+        // Browser URL ကို ?step=... အဖြစ် ပြောင်းလဲပြီး History ထဲ ထည့်ခြင်း
+        window.history.pushState({ stepId: pageId }, '', `?step=${pageId}`);
+      }
 
       let { data: page, error } = await supabaseClient.from('pages').select('*').eq('id', pageId).maybeSingle();
 
-      // Page အသစ်ဖြစ်ပါက Database ထဲ အလိုအလျောက် သွင်းပေးခြင်း
       if (!page) {
         const newPageData = {
           id: pageId,
@@ -228,7 +264,7 @@
         page = newPageData;
       }
 
-      // Step Badge
+      // Step Badge & Title
       document.getElementById('stepBadge').textContent = (page.id === 'step1') ? "STEP 1: TREND DIRECTION" : page.id.toUpperCase();
       document.getElementById('pageTitle').textContent = page.title;
       document.getElementById('pageDesc').textContent = page.description || '';
@@ -278,7 +314,7 @@
         clList.appendChild(row);
       });
 
-      // Buttons Grid (Matching exact 4-Card UI from screenshot)
+      // Buttons Grid Rendering
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
@@ -329,12 +365,7 @@
       } else {
         historyStack.push(stepId);
       }
-      renderPage(stepId);
-    }
-
-    function resetToHome() {
-      historyStack = ['step1'];
-      renderPage('step1');
+      renderPage(stepId, true);
     }
 
     function renderBreadcrumbs() {
@@ -342,18 +373,18 @@
       bc.innerHTML = '';
       historyStack.forEach((step, idx) => {
         const item = document.createElement('span');
-        item.className = `cursor-pointer ${idx === historyStack.length - 1 ? 'text-blue-400 font-bold' : 'hover:text-slate-200'}`;
+        item.className = `cursor-pointer transition ${idx === historyStack.length - 1 ? 'text-blue-400 font-bold' : 'hover:text-slate-200 text-slate-400'}`;
         item.textContent = step;
         item.onclick = () => {
           historyStack = historyStack.slice(0, idx + 1);
-          renderPage(step);
+          renderPage(step, true);
         };
         bc.appendChild(item);
 
         if (idx < historyStack.length - 1) {
           const sep = document.createElement('span');
           sep.textContent = '>';
-          sep.className = 'text-slate-600';
+          sep.className = 'text-slate-600 select-none';
           bc.appendChild(sep);
         }
       });
@@ -425,7 +456,7 @@
             </div>
             <div>
               <label class="block text-[10px] text-slate-400 mb-1">Badge Color</label>
-              <select onchange="currentEditButtons[${i}].tag_color = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+              <select onchange="currentEditButtons[${i}].tag_color = this.value" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
                 <option value="blue" ${btn.tag_color === 'blue' ? 'selected' : ''}>Blue Tag</option>
                 <option value="green" ${btn.tag_color === 'green' ? 'selected' : ''}>Green Tag</option>
                 <option value="red" ${btn.tag_color === 'red' ? 'selected' : ''}>Red Tag</option>
@@ -433,8 +464,8 @@
               </select>
             </div>
           </div>
-          <input type="text" value="${btn.subtitle || ''}" placeholder="Subtitle (ရှင်းလင်းချက် အတို)" oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
-          <input type="text" value="${btn.image_url || ''}" placeholder="Image URL (ပုံ Link)" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+          <input type="text" value="${btn.subtitle || ''}" placeholder="Subtitle (ရှင်းလင်းချက် အတို)" oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
+          <input type="text" value="${btn.image_url || ''}" placeholder="Image URL (ပုံ Link)" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
         `;
         container.appendChild(div);
       });
@@ -508,7 +539,7 @@
 
         alert(`Page '${pageId}' ၏ အချက်အလက်များကို သိမ်းဆည်းပြီးပါပြီ!`);
         closeAdminModal();
-        await renderPage(pageId);
+        await renderPage(pageId, false);
 
       } catch (err) {
         console.error("Save Error:", err);
