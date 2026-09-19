@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trading Entry Guide</title>
+  <title>Trading Decision Flow</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,122 +17,146 @@
         extend: {
           colors: {
             trade: {
-              bg: '#0b0f19',
-              card: '#151c2c',
-              border: '#232e47',
-              accent: '#3b82f6',
-              bull: '#10b981',
-              bear: '#ef4444'
+              bg: '#060911',
+              card: '#0c1322',
+              cardBorder: '#1e293b',
+              accent: '#2563eb'
             }
           }
         }
       }
     }
   </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #060911; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+  </style>
 </head>
-<body class="min-h-screen bg-trade-bg text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white font-sans antialiased">
 
-  <!-- HEADER -->
-  <header class="border-b border-trade-border bg-slate-950/60 backdrop-blur-md sticky top-0 z-30 px-4 py-3">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800/80 bg-[#080d1a]/90 backdrop-blur-md sticky top-0 z-30 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3 cursor-pointer" onclick="resetToHome()">
-        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20">
           📈
         </div>
         <div>
-          <h1 class="font-bold text-base leading-tight tracking-wide">TRADING DECISION FLOW</h1>
-          <p class="text-xs text-slate-400">Step-by-Step Entry Checklist System</p>
+          <h1 class="font-extrabold text-sm tracking-wider uppercase text-slate-100">TRADING DECISION FLOW</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Step-by-Step Entry Checklist System</p>
         </div>
       </div>
+      
       <div class="flex items-center gap-2">
-        <button type="button" onclick="openAdminModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-trade-border flex items-center gap-1.5 transition cursor-pointer">
+        <button type="button" onclick="openAdminModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg flex items-center gap-1.5 transition shadow-sm cursor-pointer">
           <span>⚙️</span>
-          <span>Admin</span>
+          <span>Admin Panel</span>
         </button>
-        <button type="button" onclick="resetToHome()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-trade-border transition cursor-pointer" title="Reset to Home">
-          🔄
+        <button type="button" onclick="resetToHome()" class="p-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700/60 transition cursor-pointer" title="Home">
+          🏠
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-6xl mx-auto w-full p-4 flex-1">
-    <!-- Breadcrumbs Navigation -->
-    <nav id="breadcrumbs" class="flex items-center gap-2 text-xs text-slate-400 mb-4 overflow-x-auto py-1"></nav>
-
-    <!-- Page Title & Description -->
-    <div class="mb-6 text-center max-w-2xl mx-auto">
-      <h2 id="pageTitle" class="text-2xl font-bold text-slate-100 mb-1">Loading...</h2>
-      <p id="pageDesc" class="text-sm text-slate-400"></p>
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-6xl mx-auto w-full px-4 py-5 flex-1">
+    
+    <!-- Top Step Badge & Breadcrumbs -->
+    <div class="flex items-center gap-2 mb-3">
+      <span id="stepBadge" class="text-[10px] font-bold tracking-wider text-blue-400 bg-blue-950/70 border border-blue-800/60 px-2.5 py-0.5 rounded uppercase font-mono">
+        STEP 1: TREND DIRECTION
+      </span>
+      <nav id="breadcrumbs" class="flex items-center gap-1.5 text-xs text-slate-500 ml-1 overflow-x-auto py-0.5"></nav>
     </div>
 
-    <!-- Video Container -->
-    <div id="videoSection" class="mb-8 max-w-3xl mx-auto hidden">
-      <div class="bg-black/80 border border-trade-border rounded-2xl overflow-hidden shadow-xl aspect-video relative">
-        <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
+    <!-- Page Title -->
+    <h2 id="pageTitle" class="text-xl md:text-2xl font-bold text-slate-100 mb-3 tracking-tight">Loading...</h2>
+
+    <!-- VIDEO PLAYER CONTAINER (Clean Dark Border) -->
+    <div id="videoSection" class="mb-4 w-full bg-black border border-slate-800/90 rounded-2xl overflow-hidden shadow-2xl relative aspect-video max-h-[480px]">
+      <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
+    </div>
+
+    <!-- Description Paragraph -->
+    <p id="pageDesc" class="text-slate-300 text-xs md:text-sm leading-relaxed mb-4 font-normal"></p>
+
+    <!-- EXECUTION CHECKLIST CARD -->
+    <div id="checklistCard" class="bg-[#0b1222] border border-slate-800/80 rounded-xl p-4 mb-6 shadow-sm">
+      <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-2.5">
+        <span>☑</span>
+        <span>EXECUTION CHECKLIST</span>
       </div>
+      <div id="checklistsList" class="space-y-2 text-xs text-slate-300"></div>
     </div>
 
-    <!-- Next Buttons / Options Grid -->
-    <div id="buttonsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
+    <!-- BUTTONS / OPTIONS GRID (4 Column Card Layout matching original) -->
+    <div id="buttonsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-trade-border py-4 text-center text-xs text-slate-500 bg-slate-950/40">
-    <p>Trading Entry Guide &copy; 2026. Infinite Decision Flow Architecture.</p>
+  <footer class="border-t border-slate-800/60 py-3.5 px-6 text-xs text-slate-500 bg-[#060911] flex flex-col sm:flex-row items-center justify-between gap-2">
+    <p>Trading Decision Engine &copy; 2026</p>
+    <p class="text-slate-400 text-[11px]">Always calculate risk management before entering position</p>
   </footer>
 
-  <!-- ADMIN MODAL -->
-  <div id="adminModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-trade-card border border-trade-border rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+  <!-- ADMIN EDIT MODAL -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-[#0c1322] border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl">
       
       <!-- Modal Header -->
-      <div class="p-4 border-b border-trade-border flex justify-between items-center">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
         <div>
           <h3 class="font-bold text-base flex items-center gap-2 text-slate-200">
-            <span>⚙️</span> Management Panel
+            <span>⚙️</span> Admin Management Panel
           </h3>
           <p id="adminCurrentPageIndicator" class="text-xs text-blue-400 font-mono mt-0.5"></p>
         </div>
         <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">✕</button>
       </div>
 
-      <!-- Admin Auth View -->
-      <div id="adminAuthSection" class="p-6 text-center">
-        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ။</p>
-        <input type="password" id="adminPassInput" placeholder="Enter Admin Password" class="w-full max-w-xs bg-slate-900 border border-trade-border rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center text-white">
+      <!-- Password Section -->
+      <div id="adminAuthSection" class="p-8 text-center">
+        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ</p>
+        <input type="password" id="adminPassInput" class="w-full max-w-xs bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center text-white" placeholder="Enter Password">
         <br>
         <button type="button" onclick="verifyAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2.5 rounded-xl font-medium transition cursor-pointer">Login Admin</button>
-        <p id="adminAuthErr" class="text-red-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
+        <p id="adminAuthErr" class="text-rose-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
       </div>
 
-      <!-- Admin Content View -->
-      <div id="adminContentSection" class="p-6 overflow-y-auto space-y-5 flex-1 hidden">
+      <!-- Admin Editor Form -->
+      <div id="adminContentSection" class="p-6 overflow-y-auto space-y-4 flex-1 hidden">
         <div class="p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl text-xs text-blue-300 flex items-center justify-between">
-          <span>လက်ရှိရောက်နေသော Page: <strong id="adminPageIdDisplay" class="font-mono text-white"></strong></span>
-          <span class="text-[10px] text-slate-400">ခလုတ်များမှတစ်ဆင့် နောက် Page သို့ အလိုအလျောက် သွားပါမည်</span>
+          <span>လက်ရှိ ပြင်ဆင်နေသော Page ID: <strong id="adminPageIdDisplay" class="font-mono text-white"></strong></span>
+          <span class="text-[10px] text-slate-400">သက်ဆိုင်ရာ Page ကိုသာ တိုက်ရိုက် Edit လုပ်ပါမည်</span>
         </div>
 
         <div class="space-y-3">
           <div>
             <label class="block text-xs text-slate-400 mb-1">Page Title (ခေါင်းစဉ်)</label>
-            <input type="text" id="editPageTitle" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            <input type="text" id="editPageTitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
           </div>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Description (ရှင်းလင်းချက်)</label>
-            <textarea id="editPageDesc" rows="2" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+            <textarea id="editPageDesc" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
           </div>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Embed)</label>
-            <input type="text" id="editPageVideo" placeholder="https://..." class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            <input type="text" id="editPageVideo" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs text-emerald-400 mb-1">Execution Checklist (တစ်ကြောင်းလျှင် တစ်ခု ရေးပါ)</label>
+            <textarea id="editChecklist" rows="3" placeholder="Higher Timeframe Trend ကို သေချာ စစ်ဆေးပြီးပြီလား&#10;Major Support / Resistance zone များ ရေးဆွဲထားပါ" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 font-mono text-xs"></textarea>
           </div>
         </div>
 
-        <div class="border-t border-trade-border pt-4">
+        <!-- Buttons Form -->
+        <div class="border-t border-slate-800 pt-4">
           <div class="flex justify-between items-center mb-3">
             <h4 class="font-semibold text-sm text-slate-200">ဤ Page တွင် ပြသမည့် ခလုတ်များ (Buttons)</h4>
-            <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/40 text-blue-400 hover:bg-blue-600/30 px-3 py-1 rounded-lg cursor-pointer">
+            <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600/30 px-3 py-1.5 rounded-lg cursor-pointer">
               + ခလုတ်အသစ်ထည့်မည်
             </button>
           </div>
@@ -141,10 +165,9 @@
       </div>
 
       <!-- Modal Footer -->
-      <div id="adminFooter" class="p-4 border-t border-trade-border flex justify-end items-center bg-slate-950/50 hidden">
-        <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 cursor-pointer shadow-lg">
-          <span>💾</span>
-          <span>Save Changes</span>
+      <div id="adminFooter" class="p-4 border-t border-slate-800 flex justify-end items-center bg-slate-950/60 hidden">
+        <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-lg">
+          Save All Changes
         </button>
       </div>
 
@@ -187,24 +210,26 @@
       }
     }
 
-    // Page ကို Render ပြုလုပ်ခြင်း (အကယ်၍ Database ထဲမရှိသေးပါက အလိုအလျောက် ဖန်တီးပေးမည်)
     async function renderPage(pageId) {
       currentStepId = pageId;
-      
+
       let { data: page, error } = await supabaseClient.from('pages').select('*').eq('id', pageId).maybeSingle();
-      
+
       // Page အသစ်ဖြစ်ပါက Database ထဲ အလိုအလျောက် သွင်းပေးခြင်း
       if (!page) {
         const newPageData = {
           id: pageId,
           title: `Step: ${pageId.toUpperCase()}`,
-          description: `ဤ ${pageId} page အတွက် ရှင်းလင်းချက်နှင့် ခလုတ်များကို အပေါ်ရှိ Admin ခလုတ်မှတစ်ဆင့် ထည့်သွင်းနိုင်ပါသည်။`,
-          video_url: ''
+          description: `ဤ ${pageId} page အတွက် ရှင်းလင်းချက်နှင့် ခလုတ်များကို အပေါ်ရှိ Admin Panel မှတစ်ဆင့် ထည့်သွင်းနိုင်ပါသည်။`,
+          video_url: '',
+          checklist: []
         };
         await supabaseClient.from('pages').insert([newPageData]);
         page = newPageData;
       }
 
+      // Step Badge
+      document.getElementById('stepBadge').textContent = (page.id === 'step1') ? "STEP 1: TREND DIRECTION" : page.id.toUpperCase();
       document.getElementById('pageTitle').textContent = page.title;
       document.getElementById('pageDesc').textContent = page.description || '';
 
@@ -235,22 +260,39 @@
         videoSec.classList.add('hidden');
       }
 
-      // Buttons Render
+      // Checklist Setup
+      const clCard = document.getElementById('checklistCard');
+      const clList = document.getElementById('checklistsList');
+      clList.innerHTML = '';
+
+      const items = (page.checklist && page.checklist.length > 0) ? page.checklist : [
+        'Higher Timeframe Trend ကို သေချာ စစ်ဆေးပြီးပြီလား',
+        'Major Support / Resistance zone များ ရေးဆွဲထားပါ',
+        'Market Sentiment နှင့် News release အချိန်များ သတိပြုပါ'
+      ];
+
+      items.forEach(text => {
+        const row = document.createElement('div');
+        row.className = "flex items-center gap-2 text-slate-300";
+        row.innerHTML = `<span class="w-4 h-4 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-[10px] text-emerald-400 font-bold">✓</span><span>${text}</span>`;
+        clList.appendChild(row);
+      });
+
+      // Buttons Grid (Matching exact 4-Card UI from screenshot)
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
 
       if (!buttons || buttons.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-2 lg:col-span-4 p-8 text-center bg-slate-900/40 border border-dashed border-trade-border rounded-2xl text-slate-400 text-sm">
-            💡 ဤ Page တွင် Option ခလုတ်များ မရှိသေးပါ။ ညာဘက်အပေါ်ရှိ <strong>Admin</strong> ခလုတ်ကိုနှိပ်၍ ခလုတ်အသစ်များ ထည့်သွင်းနိုင်ပါသည်။
+          <div class="col-span-1 sm:col-span-2 lg:col-span-4 p-8 text-center bg-[#0c1322] border border-dashed border-slate-800 rounded-2xl text-slate-400 text-xs">
+            💡 ဤ Page တွင် Option ခလုတ်များ မရှိသေးပါ။ ညာဘက်အပေါ်ရှိ <strong>Admin Panel</strong> ကိုနှိပ်၍ ခလုတ်များ ထည့်သွင်းနိုင်ပါသည်။
           </div>`;
       } else {
         buttons.forEach(btn => {
           const card = document.createElement('div');
-          // ခလုတ်နှိပ်ပါက Target Step ဆီသို့ တိုက်ရိုက်သွားမည်
           card.onclick = () => navigateTo(btn.target_step);
-          card.className = "bg-trade-card border border-trade-border hover:border-blue-500/60 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
+          card.className = "bg-[#0c1322] border border-slate-800 hover:border-blue-500/60 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
 
           const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                              btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
@@ -260,14 +302,14 @@
           card.innerHTML = `
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${btn.tag || 'OPTION'}</span>
-                <span class="text-slate-500 group-hover:text-blue-400 transition text-sm">↗</span>
+                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider ${badgeColor}">${btn.tag || 'OPTION'}</span>
+                <span class="text-slate-500 group-hover:text-blue-400 transition text-xs">↗</span>
               </div>
-              <h3 class="font-bold text-lg text-slate-100 mb-1 group-hover:text-blue-400 transition">${btn.label}</h3>
+              <h3 class="font-extrabold text-base text-slate-100 mb-1 group-hover:text-blue-400 transition">${btn.label}</h3>
               <p class="text-xs text-slate-400 mb-3">${btn.subtitle || ''}</p>
             </div>
             ${btn.image_url ? `
-              <div class="w-full h-36 bg-slate-950/80 border border-trade-border rounded-xl p-2 flex items-center justify-center overflow-hidden">
+              <div class="w-full h-44 bg-white rounded-xl p-2 flex items-center justify-center overflow-hidden border border-slate-200">
                 <img src="${btn.image_url}" class="max-h-full max-w-full object-contain">
               </div>
             ` : ''}
@@ -279,16 +321,12 @@
       renderBreadcrumbs();
     }
 
-    // လမ်းကြောင်း ကူးပြောင်းခြင်း (Breadcrumbs ထပ်နေသည့် Error ကို ရှင်းလင်းထားပါသည်)
     function navigateTo(stepId) {
       if (!stepId) return;
-      
       const existingIndex = historyStack.indexOf(stepId);
       if (existingIndex !== -1) {
-        // အကယ်၍ အရင်သွားခဲ့ဖူးသော Step ဖြစ်ပါက လမ်းကြောင်းကို အရှည်ကြီး မထပ်စေဘဲ ဖြတ်ညှပ်ပေးမည်
         historyStack = historyStack.slice(0, existingIndex + 1);
       } else {
-        // Step အသစ်ဖြစ်ပါက ဆက်ထည့်မည်
         historyStack.push(stepId);
       }
       renderPage(stepId);
@@ -299,7 +337,6 @@
       renderPage('step1');
     }
 
-    // Breadcrumbs Navigation ပြသခြင်း
     function renderBreadcrumbs() {
       const bc = document.getElementById('breadcrumbs');
       bc.innerHTML = '';
@@ -322,7 +359,6 @@
       });
     }
 
-    // Admin Login စစ်ဆေးခြင်း
     async function verifyAdmin() {
       const pass = document.getElementById('adminPassInput').value;
       const res = await fetch('/api/login', {
@@ -342,7 +378,6 @@
       }
     }
 
-    // လက်ရှိ မျက်နှာပြင်ပေါ်တွင် ရောက်နေသော Page ကိုသာ တိုက်ရိုက် Edit လုပ်ခြင်း
     async function loadCurrentPageForEdit() {
       const pageId = currentStepId;
       document.getElementById('adminCurrentPageIndicator').textContent = `Editing: ${pageId}`;
@@ -354,6 +389,7 @@
       document.getElementById('editPageTitle').value = page.title || '';
       document.getElementById('editPageDesc').value = page.description || '';
       document.getElementById('editPageVideo').value = page.video_url || '';
+      document.getElementById('editChecklist').value = (page.checklist || []).join('\n');
 
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       currentEditButtons = buttons || [];
@@ -366,7 +402,7 @@
 
       currentEditButtons.forEach((btn, i) => {
         const div = document.createElement('div');
-        div.className = "bg-slate-900 border border-trade-border rounded-xl p-3 text-xs space-y-2";
+        div.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
         div.innerHTML = `
           <div class="flex justify-between items-center">
             <span class="text-blue-400 font-bold">Button #${i + 1}</span>
@@ -375,21 +411,21 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] text-slate-400 mb-1">ခလုတ်နာမည် (Button Label)</label>
-              <input type="text" value="${btn.label || ''}" placeholder="ဥပမာ- Entry Confirmation" oninput="currentEditButtons[${i}].label = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+              <input type="text" value="${btn.label || ''}" placeholder="ဥပမာ- HH → HL" oninput="currentEditButtons[${i}].label = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
             </div>
             <div>
-              <label class="block text-[10px] text-amber-400 mb-1">နှိပ်ရင်သွားမယ့် နောက် Page ID (Target)</label>
-              <input type="text" value="${btn.target_step || ''}" placeholder="ဥပမာ- step3_risk" oninput="currentEditButtons[${i}].target_step = this.value.trim().toLowerCase().replace(/\\s+/g, '_')" class="w-full bg-slate-950 border border-amber-500/40 rounded p-1.5 text-white font-mono">
+              <label class="block text-[10px] text-amber-400 mb-1">နှိပ်ရင်သွားမည့် Target Step ID</label>
+              <input type="text" value="${btn.target_step || ''}" placeholder="ဥပမာ- step2_hhtohl" oninput="currentEditButtons[${i}].target_step = this.value.trim().toLowerCase().replace(/\\s+/g, '_')" class="w-full bg-slate-900 border border-amber-500/40 rounded p-1.5 text-white font-mono">
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] text-slate-400 mb-1">Tag Text</label>
-              <input type="text" value="${btn.tag || ''}" placeholder="UPTREND / CONFIRM" oninput="currentEditButtons[${i}].tag = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+              <input type="text" value="${btn.tag || ''}" placeholder="UPTREND RETRACE" oninput="currentEditButtons[${i}].tag = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
             </div>
             <div>
               <label class="block text-[10px] text-slate-400 mb-1">Badge Color</label>
-              <select onchange="currentEditButtons[${i}].tag_color = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+              <select onchange="currentEditButtons[${i}].tag_color = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
                 <option value="blue" ${btn.tag_color === 'blue' ? 'selected' : ''}>Blue Tag</option>
                 <option value="green" ${btn.tag_color === 'green' ? 'selected' : ''}>Green Tag</option>
                 <option value="red" ${btn.tag_color === 'red' ? 'selected' : ''}>Red Tag</option>
@@ -397,28 +433,21 @@
               </select>
             </div>
           </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 mb-1">Subtitle (ရှင်းလင်းချက် အတို)</label>
-            <input type="text" value="${btn.subtitle || ''}" placeholder="ရှင်းလင်းချက် အတို..." oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 mb-1">Image URL (ရုပ်ပုံ Link - မထည့်လည်းရပါသည်)</label>
-            <input type="text" value="${btn.image_url || ''}" placeholder="https://..." oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-          </div>
+          <input type="text" value="${btn.subtitle || ''}" placeholder="Subtitle (ရှင်းလင်းချက် အတို)" oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+          <input type="text" value="${btn.image_url || ''}" placeholder="Image URL (ပုံ Link)" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
         `;
         container.appendChild(div);
       });
     }
 
     function addNewButtonField() {
-      // အသစ်ထည့်သောခလုတ်အတွက် နောက် Step ID အမည်ကို default အနေဖြင့် ထုတ်ပေးခြင်း
       const nextStepDefault = `${currentStepId}_sub${currentEditButtons.length + 1}`;
       currentEditButtons.push({
         label: 'Option အသစ်',
-        subtitle: 'ဤခလုတ်ကို နှိပ်ပါက နောက် page အသစ်သို့ ရောက်ပါမည်',
+        subtitle: 'ရှင်းလင်းချက် အတို...',
         target_step: nextStepDefault,
-        tag: 'NEXT STEP',
-        tag_color: 'green',
+        tag: 'OPTION',
+        tag_color: 'blue',
         image_url: ''
       });
       renderAdminButtons();
@@ -429,27 +458,28 @@
       renderAdminButtons();
     }
 
-    // လက်ရှိ ရောက်နေသော Page ပေါ်သို့သာ တိုက်ရိုက် Save မည့် Logic
     async function saveChangesToSupabase() {
       const pageId = currentStepId;
       const title = document.getElementById('editPageTitle').value;
       const description = document.getElementById('editPageDesc').value;
       const video_url = document.getElementById('editPageVideo').value;
-      const saveBtn = document.getElementById('saveBtn');
+      const checklist = document.getElementById('editChecklist').value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
+      const saveBtn = document.getElementById('saveBtn');
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
 
       try {
-        // ၁။ လက်ရှိ Page အချက်အလက်များကို Update လုပ်ခြင်း
         const { error: pageErr } = await supabaseClient
           .from('pages')
-          .update({ title, description, video_url })
+          .update({ title, description, video_url, checklist })
           .eq('id', pageId);
 
         if (pageErr) throw pageErr;
 
-        // ၂။ လက်ရှိ Page ၏ Button များကို ရှင်းထုတ်ပြီး အသစ်ပြန်ထည့်ခြင်း
         const { error: delErr } = await supabaseClient
           .from('buttons')
           .delete()
@@ -476,7 +506,7 @@
           if (insErr) throw insErr;
         }
 
-        alert(`Page '${pageId}' ၏ ပြင်ဆင်မှုများကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!`);
+        alert(`Page '${pageId}' ၏ အချက်အလက်များကို သိမ်းဆည်းပြီးပါပြီ!`);
         closeAdminModal();
         await renderPage(pageId);
 
@@ -485,7 +515,7 @@
         alert("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပေါ်ခဲ့သည်: " + err.message);
       } finally {
         saveBtn.disabled = false;
-        saveBtn.textContent = 'Save Changes';
+        saveBtn.textContent = 'Save All Changes';
       }
     }
 
