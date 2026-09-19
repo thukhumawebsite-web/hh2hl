@@ -74,7 +74,7 @@
       </div>
     </div>
 
-    <!-- Next Buttons / Options Grid (4-Column Layout) -->
+    <!-- Next Buttons / Options Grid -->
     <div id="buttonsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
   </main>
 
@@ -97,7 +97,7 @@
 
       <!-- Admin Auth View -->
       <div id="adminAuthSection" class="p-6 text-center">
-        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Admin Password ကိုဖြည့်ပါ။</p>
+        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ။</p>
         <input type="password" id="adminPassInput" placeholder="Enter Admin Password" class="w-full max-w-xs bg-slate-900 border border-trade-border rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center text-white">
         <br>
         <button type="button" onclick="verifyAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2.5 rounded-xl font-medium transition cursor-pointer">Login Admin</button>
@@ -107,9 +107,12 @@
       <!-- Admin Content View -->
       <div id="adminContentSection" class="p-6 overflow-y-auto space-y-6 flex-1 hidden">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select Page to Edit</label>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Currently Editing Page</label>
+            <span id="currentEditingBadge" class="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-mono"></span>
+          </div>
           <div class="flex gap-2">
-            <select id="adminPageSelect" onchange="loadPageForEdit()" class="flex-1 bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></select>
+            <select id="adminPageSelect" onchange="loadPageForEdit(this.value)" class="flex-1 bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></select>
             <button type="button" onclick="addNewPagePrompt()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 text-xs rounded-xl font-medium transition cursor-pointer">
               + New Page
             </button>
@@ -126,14 +129,14 @@
             <textarea id="editPageDesc" rows="2" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Youtube Embed)</label>
+            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Embed)</label>
             <input type="text" id="editPageVideo" placeholder="https://..." class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
           </div>
         </div>
 
         <div class="border-t border-trade-border pt-4">
           <div class="flex justify-between items-center mb-3">
-            <h4 class="font-semibold text-sm text-slate-200">Action Buttons / Options</h4>
+            <h4 class="font-semibold text-sm text-slate-200">Action Buttons for this Page</h4>
             <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/40 text-blue-400 hover:bg-blue-600/30 px-3 py-1 rounded-lg cursor-pointer">
               + Add Button
             </button>
@@ -146,7 +149,7 @@
       <div id="adminFooter" class="p-4 border-t border-trade-border flex justify-end items-center bg-slate-950/50 hidden">
         <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 cursor-pointer">
           <span>💾</span>
-          <span>Save All Changes</span>
+          <span>Save Changes</span>
         </button>
       </div>
 
@@ -159,10 +162,17 @@
     let historyStack = ['step1'];
     let allPages = [];
     let currentEditButtons = [];
+    let isAdminLoggedIn = false;
 
     function openAdminModal() {
       document.getElementById('adminModal').classList.remove('hidden');
+      if (isAdminLoggedIn) {
+        // အကယ်၍ Login ဝင်ပြီးသားဖြစ်ပါက လက်ရှိ ရောက်နေသော Page ကို တန်းရွေးပေးမည်
+        document.getElementById('adminPageSelect').value = currentStepId;
+        loadPageForEdit(currentStepId);
+      }
     }
+    
     function closeAdminModal() {
       document.getElementById('adminModal').classList.add('hidden');
     }
@@ -207,15 +217,29 @@
     async function renderPage(pageId) {
       currentStepId = pageId;
       const { data: page, error } = await supabaseClient.from('pages').select('*').eq('id', pageId).single();
+      
+      // အကယ်၍ Button နှိပ်လိုက်သော Page သည် Database ထဲ မရှိသေးပါက တိုက်ရိုက် အသစ်ဖန်တီးပေးခြင်း
       if (error || !page) {
-        console.error("Render Page Error:", error);
-        return;
+        const createNow = confirm(`Page ID '${pageId}' သည် Database တွင် မရှိသေးပါ။ Page အသစ်အဖြစ် အခုပဲ ဖန်တီးလိုက်မလား?`);
+        if (createNow) {
+          await supabaseClient.from('pages').insert([{
+            id: pageId,
+            title: `${pageId.toUpperCase()} Strategy`,
+            description: 'ဤ Page အတွက် ရှင်းလင်းချက်နှင့် Buttons များကို Admin Panel မှ ဖြည့်စွက်နိုင်ပါသည်။',
+            video_url: ''
+          }]);
+          await fetchAllPagesList();
+          return renderPage(pageId);
+        } else {
+          navigateTo('step1');
+          return;
+        }
       }
 
       document.getElementById('pageTitle').textContent = page.title;
       document.getElementById('pageDesc').textContent = page.description || '';
 
-      // Video Setup (Autoplay Muted)
+      // Video Setup
       const videoSec = document.getElementById('videoSection');
       const videoCont = document.getElementById('videoContainer');
       videoCont.innerHTML = '';
@@ -242,38 +266,43 @@
         videoSec.classList.add('hidden');
       }
 
-      // Buttons Grid (Original HTML Style & Palette)
+      // Buttons Grid Rendering
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
 
-      (buttons || []).forEach(btn => {
-        const card = document.createElement('div');
-        card.onclick = () => navigateTo(btn.target_step);
-        card.className = "bg-trade-card border border-trade-border hover:border-blue-500/60 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
+      if (!buttons || buttons.length === 0) {
+        grid.innerHTML = `<div class="col-span-4 text-center py-8 text-slate-500 text-sm">ဤ Page တွင် Button များ မရှိသေးပါ။ Admin ခလုတ်ကို နှိပ်၍ အသစ်ထည့်သွင်းနိုင်ပါသည်။</div>`;
+      } else {
+        buttons.forEach(btn => {
+          const card = document.createElement('div');
+          // ခလုတ်နှိပ်ပါက target_step သို့ တိုက်ရိုက်ကူးပြောင်းစေမည်
+          card.onclick = () => navigateTo(btn.target_step);
+          card.className = "bg-trade-card border border-trade-border hover:border-blue-500/60 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
 
-        const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                           btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                           btn.tag_color === 'amber' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                           'bg-blue-500/10 text-blue-400 border-blue-500/20';
+          const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                             btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                             btn.tag_color === 'amber' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                             'bg-blue-500/10 text-blue-400 border-blue-500/20';
 
-        card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${btn.tag || 'OPTION'}</span>
-              <span class="text-slate-500 group-hover:text-blue-400 transition text-sm">↗</span>
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${btn.tag || 'OPTION'}</span>
+                <span class="text-slate-500 group-hover:text-blue-400 transition text-sm">↗</span>
+              </div>
+              <h3 class="font-bold text-lg text-slate-100 mb-1 group-hover:text-blue-400 transition">${btn.label}</h3>
+              <p class="text-xs text-slate-400 mb-3">${btn.subtitle || ''}</p>
             </div>
-            <h3 class="font-bold text-lg text-slate-100 mb-1 group-hover:text-blue-400 transition">${btn.label}</h3>
-            <p class="text-xs text-slate-400 mb-3">${btn.subtitle || ''}</p>
-          </div>
-          ${btn.image_url ? `
-            <div class="w-full h-36 bg-slate-950/80 border border-trade-border rounded-xl p-2 flex items-center justify-center overflow-hidden">
-              <img src="${btn.image_url}" class="max-h-full max-w-full object-contain">
-            </div>
-          ` : ''}
-        `;
-        grid.appendChild(card);
-      });
+            ${btn.image_url ? `
+              <div class="w-full h-36 bg-slate-950/80 border border-trade-border rounded-xl p-2 flex items-center justify-center overflow-hidden">
+                <img src="${btn.image_url}" class="max-h-full max-w-full object-contain">
+              </div>
+            ` : ''}
+          `;
+          grid.appendChild(card);
+        });
+      }
 
       renderBreadcrumbs();
     }
@@ -316,17 +345,21 @@
       });
       const data = await res.json();
       if (data.success || pass === '123456') {
+        isAdminLoggedIn = true;
         document.getElementById('adminAuthSection').classList.add('hidden');
         document.getElementById('adminContentSection').classList.remove('hidden');
         document.getElementById('adminFooter').classList.remove('hidden');
-        loadPageForEdit();
+        
+        // အဓိက အချက် - လက်ရှိရောက်နေသော Page ကို တိုက်ရိုက် Edit လုပ်ပေးမည်
+        document.getElementById('adminPageSelect').value = currentStepId;
+        loadPageForEdit(currentStepId);
       } else {
         document.getElementById('adminAuthErr').classList.remove('hidden');
       }
     }
 
     async function addNewPagePrompt() {
-      const pageId = prompt("Page ID အသစ်ပေးပါ (e.g. step2_hhtohl):");
+      const pageId = prompt("Page ID အသစ်ပေးပါ (e.g. step3_risk):");
       if (!pageId) return;
       const formattedId = pageId.trim().toLowerCase().replace(/\s+/g, '_');
       const title = prompt("Page Title:") || "New Step";
@@ -339,13 +372,14 @@
       }]);
 
       await fetchAllPagesList();
-      document.getElementById('adminPageSelect').value = formattedId;
-      loadPageForEdit();
+      loadPageForEdit(formattedId);
     }
 
-    async function loadPageForEdit() {
-      const pageId = document.getElementById('adminPageSelect').value;
-      if (!pageId) return;
+    // ရောက်နေသော Page ID အလိုက် တိုက်ရိုက်ဆွဲတင်ခြင်း
+    async function loadPageForEdit(pageId) {
+      if (!pageId) pageId = currentStepId;
+      document.getElementById('adminPageSelect').value = pageId;
+      document.getElementById('currentEditingBadge').textContent = `Editing: ${pageId}`;
 
       const { data: page } = await supabaseClient.from('pages').select('*').eq('id', pageId).single();
       if (!page) return;
@@ -372,17 +406,29 @@
             <button type="button" onclick="removeButton(${i})" class="text-rose-400 hover:text-rose-300 cursor-pointer">🗑️ Delete</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" value="${btn.label || ''}" placeholder="Button Name" oninput="currentEditButtons[${i}].label = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-            <input type="text" value="${btn.target_step || ''}" placeholder="Target Step ID" oninput="currentEditButtons[${i}].target_step = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Button Label</label>
+              <input type="text" value="${btn.label || ''}" placeholder="Button Name" oninput="currentEditButtons[${i}].label = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Target Page ID (Next Step)</label>
+              <input type="text" value="${btn.target_step || ''}" placeholder="Target Step ID" oninput="currentEditButtons[${i}].target_step = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" value="${btn.tag || ''}" placeholder="Tag (e.g. UPTREND RETRACE)" oninput="currentEditButtons[${i}].tag = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-            <select onchange="currentEditButtons[${i}].tag_color = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-              <option value="blue" ${btn.tag_color === 'blue' ? 'selected' : ''}>Blue Tag</option>
-              <option value="green" ${btn.tag_color === 'green' ? 'selected' : ''}>Green Tag</option>
-              <option value="red" ${btn.tag_color === 'red' ? 'selected' : ''}>Red Tag</option>
-              <option value="amber" ${btn.tag_color === 'amber' ? 'selected' : ''}>Amber Tag</option>
-            </select>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Tag Text</label>
+              <input type="text" value="${btn.tag || ''}" placeholder="Tag (e.g. UPTREND)" oninput="currentEditButtons[${i}].tag = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Badge Color</label>
+              <select onchange="currentEditButtons[${i}].tag_color = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+                <option value="blue" ${btn.tag_color === 'blue' ? 'selected' : ''}>Blue Tag</option>
+                <option value="green" ${btn.tag_color === 'green' ? 'selected' : ''}>Green Tag</option>
+                <option value="red" ${btn.tag_color === 'red' ? 'selected' : ''}>Red Tag</option>
+                <option value="amber" ${btn.tag_color === 'amber' ? 'selected' : ''}>Amber Tag</option>
+              </select>
+            </div>
           </div>
           <input type="text" value="${btn.subtitle || ''}" placeholder="Subtitle" oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
           <input type="text" value="${btn.image_url || ''}" placeholder="Image URL" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
@@ -408,6 +454,7 @@
       renderAdminButtons();
     }
 
+    // လက်ရှိ ရောက်ရှိနေသည့် Page ပေါ်သို့သာ တိုက်ရိုက် Save မည့် Logic
     async function saveChangesToSupabase() {
       const pageId = document.getElementById('adminPageSelect').value;
       const title = document.getElementById('editPageTitle').value;
@@ -452,7 +499,7 @@
           if (insErr) throw insErr;
         }
 
-        alert('အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!');
+        alert(`Page '${pageId}' ကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!`);
         closeAdminModal();
         await fetchAllPagesList();
         await renderPage(pageId);
@@ -462,7 +509,7 @@
         alert("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပေါ်ခဲ့သည်: " + err.message);
       } finally {
         saveBtn.disabled = false;
-        saveBtn.textContent = 'Save All Changes';
+        saveBtn.textContent = 'Save Changes';
       }
     }
 
