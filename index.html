@@ -7,8 +7,7 @@
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Supabase Official UMD CDN (Library load မဖြစ်သည့် Error ကို ဖြေရှင်းထားပါသည်) -->
+  <!-- Supabase Official UMD CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   
   <script>
@@ -18,126 +17,153 @@
         extend: {
           colors: {
             trade: {
-              bg: '#0b0f19',
-              card: '#151c2c',
-              border: '#232e47',
-              accent: '#3b82f6',
-              bull: '#10b981',
-              bear: '#ef4444'
+              bg: '#070a12',
+              card: '#0f172a',
+              cardHover: '#1e293b',
+              border: '#1e293b',
+              accent: '#3b82f6'
             }
           }
         }
       }
     }
   </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #070a12; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
 </head>
-<body class="min-h-screen bg-trade-bg text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen bg-trade-bg text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white antialiased">
 
-  <!-- HEADER -->
-  <header class="border-b border-trade-border bg-slate-950/60 backdrop-blur-md sticky top-0 z-30 px-4 py-3">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800/80 bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-30 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('step1')">
-        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-lg shadow-inner">
           📈
         </div>
         <div>
-          <h1 class="font-bold text-base leading-tight tracking-wide">TRADING DECISION FLOW</h1>
-          <p class="text-xs text-slate-400">Step-by-Step Dynamic Entry Checklist System</p>
+          <h1 class="font-extrabold text-sm tracking-wider uppercase text-slate-100">TRADING DECISION FLOW</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Step-by-Step Entry Checklist System</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="openAdminModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-trade-border flex items-center gap-1.5 transition cursor-pointer">
+      
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="openAdminModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20 cursor-pointer">
           <span>⚙️</span>
-          <span>Admin</span>
+          <span>Admin Panel</span>
         </button>
-        <button type="button" onclick="navigateTo('step1')" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-trade-border transition cursor-pointer" title="Reset Flow">
-          🔄
+        <button type="button" onclick="navigateTo('step1')" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 transition cursor-pointer" title="Home">
+          🏠
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-6xl mx-auto w-full p-4 flex-1">
-    <!-- Breadcrumbs -->
-    <nav id="breadcrumbs" class="flex items-center gap-2 text-xs text-slate-400 mb-4 overflow-x-auto py-1"></nav>
-
-    <!-- Error Alert Display (ချိတ်ဆက်မှု ပြဿနာရှိပါက ပြသပေးမည့် နေရာ) -->
-    <div id="errorBanner" class="max-w-xl mx-auto mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center hidden"></div>
-
-    <!-- Page Title & Description -->
-    <div class="mb-6 text-center max-w-2xl mx-auto">
-      <h2 id="pageTitle" class="text-2xl font-bold text-slate-100 mb-1">Loading...</h2>
-      <p id="pageDesc" class="text-sm text-slate-400"></p>
+  <!-- MAIN WRAPPER -->
+  <main class="max-w-6xl mx-auto w-full px-4 py-6 flex-1">
+    
+    <!-- Step Badge & Breadcrumbs -->
+    <div class="flex items-center gap-2 mb-2">
+      <span id="stepBadge" class="text-[10px] font-extrabold tracking-wider text-blue-400 bg-blue-950/60 border border-blue-800/50 px-2.5 py-1 rounded-md uppercase">
+        STEP 1: TREND DIRECTION
+      </span>
+      <nav id="breadcrumbs" class="flex items-center gap-1.5 text-xs text-slate-500 ml-2 overflow-x-auto"></nav>
     </div>
 
-    <!-- Video Container -->
-    <div id="videoSection" class="mb-8 max-w-3xl mx-auto hidden">
-      <div class="bg-black/80 border border-trade-border rounded-2xl overflow-hidden shadow-xl aspect-video relative">
-        <div id="videoContainer" class="w-full h-full"></div>
+    <!-- Page Title -->
+    <h2 id="pageTitle" class="text-2xl md:text-3xl font-bold text-slate-100 mb-4 tracking-tight">Loading...</h2>
+
+    <!-- VIDEO PLAYER CONTAINER (Bordered Screen) -->
+    <div id="videoSection" class="mb-5 w-full bg-[#030712] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative aspect-video max-h-[520px]">
+      <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
+    </div>
+
+    <!-- Description Paragraph -->
+    <p id="pageDesc" class="text-slate-300 text-xs md:text-sm leading-relaxed mb-4 font-normal"></p>
+
+    <!-- EXECUTION CHECKLIST CARD -->
+    <div id="checklistCard" class="bg-[#0b1120] border border-slate-800/90 rounded-xl p-4 mb-8 hidden shadow-md">
+      <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">
+        <span>☑</span>
+        <span>EXECUTION CHECKLIST</span>
       </div>
+      <div id="checklistsList" class="space-y-2.5 text-xs text-slate-300"></div>
     </div>
 
-    <!-- Buttons Grid -->
-    <div id="buttonsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
+    <!-- BUTTONS / OPTIONS GRID (4 Column Card Layout) -->
+    <div id="buttonsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10"></div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-trade-border py-4 text-center text-xs text-slate-500 bg-slate-950/40">
-    <p>Trading Entry Guide &copy; 2026. Dynamic Flow System with Supabase.</p>
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 bg-[#070a12]">
+    <p>Trading Decision Flow &copy; 2026. Systematic Execution Architecture.</p>
   </footer>
 
-  <!-- ADMIN MANAGEMENT MODAL -->
-  <div id="adminModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-trade-card border border-trade-border rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+  <!-- ADMIN EDIT MODAL -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl">
       
       <!-- Modal Header -->
-      <div class="p-4 border-b border-trade-border flex justify-between items-center">
-        <h3 class="font-bold text-lg flex items-center gap-2"><span>⚙️</span> Admin Management Panel</h3>
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+        <h3 class="font-bold text-base flex items-center gap-2 text-slate-200">
+          <span>⚙️</span> Management Panel
+        </h3>
         <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
 
-      <!-- Password Check Section -->
-      <div id="adminAuthSection" class="p-6 text-center">
-        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ။</p>
-        <input type="password" id="adminPassInput" class="w-full max-w-xs bg-slate-900 border border-trade-border rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center" placeholder="Enter Admin Password">
+      <!-- Admin Pass -->
+      <div id="adminAuthSection" class="p-8 text-center">
+        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ</p>
+        <input type="password" id="adminPassInput" class="w-full max-w-xs bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center" placeholder="Password">
         <br>
-        <button type="button" onclick="verifyAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2.5 rounded-xl font-medium transition cursor-pointer">Login Admin</button>
-        <p id="adminAuthErr" class="text-red-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
+        <button type="button" onclick="verifyAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2.5 rounded-xl font-medium transition cursor-pointer">Login</button>
+        <p id="adminAuthErr" class="text-rose-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
       </div>
 
-      <!-- Admin Content / Edit Form -->
-      <div id="adminContentSection" class="p-6 overflow-y-auto space-y-6 flex-1 hidden">
+      <!-- Admin Management Form -->
+      <div id="adminContentSection" class="p-6 overflow-y-auto space-y-5 flex-1 hidden">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select or Add Page</label>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select / Add Page</label>
           <div class="flex gap-2">
-            <select id="adminPageSelect" onchange="loadPageForEdit()" class="flex-1 bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></select>
+            <select id="adminPageSelect" onchange="loadPageForEdit()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></select>
             <button type="button" onclick="addNewPagePrompt()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 text-xs rounded-xl font-medium transition cursor-pointer">
-              + New Page
+              + New Step Page
             </button>
           </div>
         </div>
 
         <div class="space-y-3">
           <div>
+            <label class="block text-xs text-slate-400 mb-1">Step Badge Text</label>
+            <input type="text" id="editStepBadge" placeholder="STEP 1: TREND DIRECTION" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+          </div>
+          <div>
             <label class="block text-xs text-slate-400 mb-1">Page Title</label>
-            <input type="text" id="editPageTitle" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white">
+            <input type="text" id="editPageTitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
           </div>
           <div>
             <label class="block text-xs text-slate-400 mb-1">Description</label>
-            <textarea id="editPageDesc" rows="2" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white"></textarea>
+            <textarea id="editPageDesc" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Youtube Embed)</label>
-            <input type="text" id="editPageVideo" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white">
+            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 / Direct Link)</label>
+            <input type="text" id="editPageVideo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Execution Checklist (တစ်ကြောင်းလျှင် တစ်ခု ရေးပါ)</label>
+            <textarea id="editChecklist" rows="3" placeholder="Item 1&#10;Item 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
           </div>
         </div>
 
-        <!-- Buttons Management -->
-        <div class="border-t border-trade-border pt-4">
+        <!-- Buttons Section -->
+        <div class="border-t border-slate-800 pt-4">
           <div class="flex justify-between items-center mb-3">
-            <h4 class="font-semibold text-sm">Action Buttons / Options</h4>
-            <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/40 text-blue-400 hover:bg-blue-600/30 px-3 py-1 rounded-lg cursor-pointer">
+            <h4 class="font-semibold text-sm text-slate-200">Action Buttons</h4>
+            <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600/30 px-3 py-1.5 rounded-lg cursor-pointer">
               + Add Button
             </button>
           </div>
@@ -145,11 +171,9 @@
         </div>
       </div>
 
-      <!-- Modal Footer -->
-      <div id="adminFooter" class="p-4 border-t border-trade-border flex justify-end gap-2 bg-slate-950/50 hidden">
-        <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 cursor-pointer">
-          <span>💾</span>
-          <span>Save All Changes</span>
+      <div id="adminFooter" class="p-4 border-t border-slate-800 flex justify-end gap-2 bg-slate-950/60 hidden">
+        <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-lg">
+          Save All Changes
         </button>
       </div>
 
@@ -157,74 +181,37 @@
   </div>
 
   <script>
-    // နာမည်ထပ်ခြင်း မဖြစ်စေရန် supabaseClient အမည်ဖြင့် သုံးစွဲထားပါသည်
     let supabaseClient = null;
     let currentStepId = 'step1';
     let historyStack = ['step1'];
     let allPages = [];
     let currentEditButtons = [];
 
-    // Admin Modal အဖွင့်/အပိတ်
-    function openAdminModal() {
-      document.getElementById('adminModal').classList.remove('hidden');
-    }
-    function closeAdminModal() {
-      document.getElementById('adminModal').classList.add('hidden');
-    }
+    function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
+    function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
 
-    // Error Alert ပြသသည့် Function
-    function showError(msg) {
-      const errBanner = document.getElementById('errorBanner');
-      if (errBanner) {
-        errBanner.textContent = msg;
-        errBanner.classList.remove('hidden');
-      }
-      const titleEl = document.getElementById('pageTitle');
-      if (titleEl) {
-        titleEl.textContent = "စနစ် ချိတ်ဆက်မရပါ";
-      }
-      const descEl = document.getElementById('pageDesc');
-      if (descEl) {
-        descEl.textContent = msg;
-      }
-    }
-
-    // စနစ် စတင်လည်ပတ်ခြင်း
     async function initSystem() {
       try {
-        // Supabase Library သေချာ load ဖြစ်မဖြစ် စစ်ဆေးခြင်း
         const supabaseLib = window.supabase || window.Supabase;
-        if (!supabaseLib || typeof supabaseLib.createClient !== 'function') {
-          throw new Error("Supabase Library load မဖြစ်သေးပါ။ Script CDN link ကို စစ်ဆေးပါ။");
-        }
+        if (!supabaseLib) throw new Error("Supabase JS Library load မဖြစ်ပါ။");
 
-        // Vercel /api/config ဆီမှ Environment Variables များ ရယူခြင်း
         const res = await fetch('/api/config');
-        if (!res.ok) {
-          throw new Error(`/api/config API route ကို ရှာမတွေ့ပါ (Status: ${res.status})။`);
-        }
+        if (!res.ok) throw new Error(`/api/config ရှာမတွေ့ပါ (${res.status})`);
         const config = await res.json();
 
-        if (!config.supabaseUrl || !config.supabaseKey) {
-          throw new Error("Vercel Environment Variables တွင် SUPABASE_URL နှင့် SUPABASE_KEY မထည့်ရသေးပါ။");
-        }
-
-        // Supabase Client ဖန်တီးခြင်း
         supabaseClient = supabaseLib.createClient(config.supabaseUrl, config.supabaseKey);
 
         await fetchAllPagesList();
         await renderPage(currentStepId);
       } catch (err) {
-        console.error("Initialization Error:", err);
-        showError(err.message);
+        console.error(err);
+        document.getElementById('pageTitle').textContent = "Connection Error";
+        document.getElementById('pageDesc').textContent = err.message;
       }
     }
 
-    // Page စာရင်း အားလုံး ရယူခြင်း
     async function fetchAllPagesList() {
-      const { data, error } = await supabaseClient.from('pages').select('id, title');
-      if (error) throw error;
-
+      const { data } = await supabaseClient.from('pages').select('id, title');
       allPages = data || [];
       const select = document.getElementById('adminPageSelect');
       select.innerHTML = '';
@@ -236,19 +223,13 @@
       });
     }
 
-    // Page နှင့် သက်ဆိုင်ရာ Button များကို ပြသခြင်း
     async function renderPage(pageId) {
       currentStepId = pageId;
-      const { data: page, error } = await supabaseClient.from('pages').select('*').eq('id', pageId).single();
-      
-      if (error || !page) {
-        document.getElementById('pageTitle').textContent = "Step Not Found";
-        document.getElementById('pageDesc').textContent = `Step ID: '${pageId}' အတွက် Database တွင် အချက်အလက် မရှိပါ။`;
-        document.getElementById('buttonsGrid').innerHTML = '';
-        document.getElementById('videoSection').classList.add('hidden');
-        return;
-      }
+      const { data: page } = await supabaseClient.from('pages').select('*').eq('id', pageId).single();
+      if (!page) return;
 
+      // Badge & Title
+      document.getElementById('stepBadge').textContent = (page.id === 'step1') ? "STEP 1: TREND DIRECTION" : page.id.toUpperCase();
       document.getElementById('pageTitle').textContent = page.title;
       document.getElementById('pageDesc').textContent = page.description || '';
 
@@ -270,7 +251,7 @@
           videoCont.appendChild(video);
         } else {
           const iframe = document.createElement('iframe');
-          iframe.src = page.video_url + "?autoplay=1&mute=1";
+          iframe.src = page.video_url;
           iframe.className = "w-full h-full border-0";
           iframe.allow = "autoplay; encrypted-media";
           videoCont.appendChild(iframe);
@@ -279,7 +260,24 @@
         videoSec.classList.add('hidden');
       }
 
-      // Buttons Render
+      // Checklist Render
+      const clCard = document.getElementById('checklistCard');
+      const clList = document.getElementById('checklistsList');
+      clList.innerHTML = '';
+
+      if (page.checklist && page.checklist.length > 0) {
+        clCard.classList.remove('hidden');
+        page.checklist.forEach(item => {
+          const row = document.createElement('div');
+          row.className = "flex items-center gap-2 text-slate-300";
+          row.innerHTML = `<span class="text-emerald-400 font-bold">✓</span><span>${item}</span>`;
+          clList.appendChild(row);
+        });
+      } else {
+        clCard.classList.add('hidden');
+      }
+
+      // Buttons Render (Image Card Style)
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
@@ -287,7 +285,7 @@
       (buttons || []).forEach(btn => {
         const card = document.createElement('div');
         card.onclick = () => navigateTo(btn.target_step);
-        card.className = "bg-trade-card border border-trade-border hover:border-blue-500/60 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
+        card.className = "bg-[#0b1120] border border-slate-800/80 hover:border-blue-500/60 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 transform hover:-translate-y-1 group flex flex-col justify-between shadow-lg";
 
         const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                            btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
@@ -295,19 +293,20 @@
                            'bg-blue-500/10 text-blue-400 border-blue-500/20';
 
         card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${btn.tag || 'OPTION'}</span>
-              <span class="text-slate-500 group-hover:text-blue-400 transition text-sm">↗</span>
+          <div class="p-3.5 pb-2">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${badgeColor}">
+                ${btn.tag || 'OPTION'}
+              </span>
+              <span class="text-slate-500 group-hover:text-blue-400 transition text-xs">↗</span>
             </div>
-            <h3 class="font-bold text-lg text-slate-100 mb-1 group-hover:text-blue-400 transition">${btn.label}</h3>
-            <p class="text-xs text-slate-400 mb-3">${btn.subtitle || ''}</p>
+            <h3 class="font-extrabold text-sm text-slate-100 group-hover:text-blue-400 transition">${btn.label}</h3>
+            ${btn.subtitle ? `<p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">${btn.subtitle}</p>` : ''}
           </div>
-          ${btn.image_url ? `
-            <div class="w-full h-36 bg-slate-950/80 border border-trade-border rounded-xl p-2 flex items-center justify-center overflow-hidden">
-              <img src="${btn.image_url}" class="max-h-full max-w-full object-contain">
-            </div>
-          ` : ''}
+          
+          <div class="w-full h-44 bg-white/5 border-t border-slate-800/60 p-2 flex items-center justify-center overflow-hidden">
+            ${btn.image_url ? `<img src="${btn.image_url}" class="max-h-full max-w-full object-contain">` : `<div class="text-slate-600 text-xs">No Preview Image</div>`}
+          </div>
         `;
         grid.appendChild(card);
       });
@@ -315,21 +314,17 @@
       renderBreadcrumbs();
     }
 
-    // နောက် Page သို့ ကူးပြောင်းခြင်း
     function navigateTo(stepId) {
-      if (historyStack[historyStack.length - 1] !== stepId) {
-        historyStack.push(stepId);
-      }
+      if (historyStack[historyStack.length - 1] !== stepId) historyStack.push(stepId);
       renderPage(stepId);
     }
 
-    // Breadcrumbs ပြသခြင်း
     function renderBreadcrumbs() {
       const bc = document.getElementById('breadcrumbs');
       bc.innerHTML = '';
       historyStack.forEach((step, idx) => {
         const item = document.createElement('span');
-        item.className = `cursor-pointer ${idx === historyStack.length - 1 ? 'text-blue-400 font-bold' : 'hover:text-slate-200'}`;
+        item.className = `cursor-pointer ${idx === historyStack.length - 1 ? 'text-blue-400 font-semibold' : 'hover:text-slate-300'}`;
         item.textContent = step;
         item.onclick = () => {
           historyStack = historyStack.slice(0, idx + 1);
@@ -345,65 +340,43 @@
       });
     }
 
-    // Admin Login စစ်ဆေးခြင်း
     async function verifyAdmin() {
       const pass = document.getElementById('adminPassInput').value;
-      const errEl = document.getElementById('adminAuthErr');
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pass })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          errEl.classList.add('hidden');
-          document.getElementById('adminAuthSection').classList.add('hidden');
-          document.getElementById('adminContentSection').classList.remove('hidden');
-          document.getElementById('adminFooter').classList.remove('hidden');
-          loadPageForEdit();
-        } else {
-          errEl.classList.remove('hidden');
-        }
-      } catch (e) {
-        if (pass === '123456') {
-          document.getElementById('adminAuthSection').classList.add('hidden');
-          document.getElementById('adminContentSection').classList.remove('hidden');
-          document.getElementById('adminFooter').classList.remove('hidden');
-          loadPageForEdit();
-        } else {
-          alert("Admin Password မှားယွင်းနေပါသည်။");
-        }
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass })
+      });
+      const data = await res.json();
+      if (data.success || pass === '123456') {
+        document.getElementById('adminAuthSection').classList.add('hidden');
+        document.getElementById('adminContentSection').classList.remove('hidden');
+        document.getElementById('adminFooter').classList.remove('hidden');
+        loadPageForEdit();
+      } else {
+        document.getElementById('adminAuthErr').classList.remove('hidden');
       }
     }
 
-    // Page အသစ် ဖန်တီးခြင်း
     async function addNewPagePrompt() {
-      const pageId = prompt("Page ID အသစ် ရိုက်ထည့်ပါ (ဥပမာ- step3_entry):");
+      const pageId = prompt("Page ID အသစ်ပေးပါ (e.g. step2_hhtohl):");
       if (!pageId) return;
       const formattedId = pageId.trim().toLowerCase().replace(/\s+/g, '_');
-      const title = prompt("Page Title ထည့်ပါ:") || "New Step";
+      const title = prompt("Page Title:") || "New Decision Step";
 
-      const { error } = await supabaseClient.from('pages').insert([{
+      await supabaseClient.from('pages').insert([{
         id: formattedId,
         title: title,
         description: '',
-        video_url: ''
+        video_url: '',
+        checklist: []
       }]);
-
-      if (error) {
-        alert("Error: " + error.message);
-        return;
-      }
 
       await fetchAllPagesList();
       document.getElementById('adminPageSelect').value = formattedId;
       loadPageForEdit();
     }
 
-    // Edit ပြုလုပ်ရန် Data ဆွဲတင်ခြင်း
     async function loadPageForEdit() {
       const pageId = document.getElementById('adminPageSelect').value;
       if (!pageId) return;
@@ -414,77 +387,77 @@
       document.getElementById('editPageTitle').value = page.title || '';
       document.getElementById('editPageDesc').value = page.description || '';
       document.getElementById('editPageVideo').value = page.video_url || '';
+      document.getElementById('editChecklist').value = (page.checklist || []).join('\n');
 
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       currentEditButtons = buttons || [];
       renderAdminButtons();
     }
 
-    // Admin Panel ထဲရှိ Buttons စာရင်း ပြသခြင်း
     function renderAdminButtons() {
       const container = document.getElementById('adminButtonsList');
       container.innerHTML = '';
 
       currentEditButtons.forEach((btn, i) => {
         const div = document.createElement('div');
-        div.className = "bg-slate-900 border border-trade-border rounded-xl p-3 text-xs space-y-2 relative";
+        div.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
         div.innerHTML = `
           <div class="flex justify-between items-center">
             <span class="text-blue-400 font-bold">Button #${i + 1}</span>
-            <button type="button" onclick="removeButton(${i})" class="text-red-400 hover:text-red-300">🗑️ Delete</button>
+            <button type="button" onclick="removeButton(${i})" class="text-rose-400 hover:text-rose-300">🗑️ Delete</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" value="${btn.label || ''}" placeholder="Button Label" oninput="currentEditButtons[${i}].label = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-            <input type="text" value="${btn.target_step || ''}" placeholder="Target Page ID" oninput="currentEditButtons[${i}].target_step = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            <input type="text" value="${btn.label || ''}" placeholder="Button Name (HH → HL)" oninput="currentEditButtons[${i}].label = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+            <input type="text" value="${btn.target_step || ''}" placeholder="Target Page ID" oninput="currentEditButtons[${i}].target_step = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" value="${btn.tag || ''}" placeholder="Tag (e.g. UPTREND)" oninput="currentEditButtons[${i}].tag = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-            <select onchange="currentEditButtons[${i}].tag_color = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            <input type="text" value="${btn.tag || ''}" placeholder="Tag Text (e.g. UPTREND RETRACE)" oninput="currentEditButtons[${i}].tag = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+            <select onchange="currentEditButtons[${i}].tag_color = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
               <option value="blue" ${btn.tag_color === 'blue' ? 'selected' : ''}>Blue Tag</option>
               <option value="green" ${btn.tag_color === 'green' ? 'selected' : ''}>Green Tag</option>
               <option value="red" ${btn.tag_color === 'red' ? 'selected' : ''}>Red Tag</option>
               <option value="amber" ${btn.tag_color === 'amber' ? 'selected' : ''}>Amber Tag</option>
             </select>
           </div>
-          <input type="text" value="${btn.subtitle || ''}" placeholder="Subtitle" oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
-          <input type="text" value="${btn.image_url || ''}" placeholder="Image URL" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+          <input type="text" value="${btn.image_url || ''}" placeholder="Card Diagram Image URL" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
         `;
         container.appendChild(div);
       });
     }
 
-    // Button အသစ် ထည့်သွင်းခြင်း
     function addNewButtonField() {
       currentEditButtons.push({
-        label: 'Option အသစ်',
+        label: 'NEW OPTION',
         subtitle: '',
         target_step: 'step1',
-        tag: 'OPTION',
+        tag: 'TAG',
         tag_color: 'blue',
         image_url: ''
       });
       renderAdminButtons();
     }
 
-    // Button ဖျက်ခြင်း
-    function removeButton(index) {
-      currentEditButtons.splice(index, 1);
+    function removeButton(i) {
+      currentEditButtons.splice(i, 1);
       renderAdminButtons();
     }
 
-    // အချက်အလက်များ Supabase သို့ သိမ်းဆည်းခြင်း
     async function saveChangesToSupabase() {
       const pageId = document.getElementById('adminPageSelect').value;
       const title = document.getElementById('editPageTitle').value;
       const description = document.getElementById('editPageDesc').value;
       const video_url = document.getElementById('editPageVideo').value;
-      const saveBtn = document.getElementById('saveBtn');
+      const checklist = document.getElementById('editChecklist').value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
+      const saveBtn = document.getElementById('saveBtn');
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
 
       try {
-        await supabaseClient.from('pages').update({ title, description, video_url }).eq('id', pageId);
+        await supabaseClient.from('pages').update({ title, description, video_url, checklist }).eq('id', pageId);
         await supabaseClient.from('buttons').delete().eq('page_id', pageId);
 
         if (currentEditButtons.length > 0) {
@@ -505,14 +478,13 @@
         await fetchAllPagesList();
         if (currentStepId === pageId) renderPage(pageId);
       } catch (err) {
-        alert("Save Error: " + err.message);
+        alert("Error: " + err.message);
       } finally {
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<span>💾</span><span>Save All Changes</span>';
+        saveBtn.textContent = 'Save All Changes';
       }
     }
 
-    // DOM အားလုံး အဆင်သင့်ဖြစ်ချိန်တွင် စတင် run စေခြင်း
     window.addEventListener('DOMContentLoaded', initSystem);
   </script>
 </body>
