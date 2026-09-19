@@ -17,9 +17,6 @@
         extend: {
           colors: {
             trade: {
-              bg: '#060911',
-              card: '#0c1322',
-              cardBorder: '#1e293b',
               accent: '#2563eb'
             }
           }
@@ -28,36 +25,46 @@
     }
   </script>
   <style>
-    /* Custom Thin Scrollbar */
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #060911; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-    /* Touch highlight prevention */
+    /* Thin Scrollbar for both Light and Dark themes */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    .dark ::-webkit-scrollbar-track { background: #060911; }
+    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     * { -webkit-tap-highlight-color: transparent; }
   </style>
 </head>
-<body class="min-h-screen bg-[#060911] text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white font-sans antialiased">
+<body class="min-h-screen bg-slate-100 text-slate-800 dark:bg-[#060911] dark:text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white font-sans antialiased transition-colors duration-200">
 
-  <!-- TOP HEADER (Mobile Responsive) -->
-  <header class="border-b border-slate-800/80 bg-[#080d1a]/95 backdrop-blur-md sticky top-0 z-40 px-3.5 sm:px-6 py-2.5 sm:py-3">
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-200 bg-white/95 dark:border-slate-800/80 dark:bg-[#080d1a]/95 backdrop-blur-md sticky top-0 z-40 px-3.5 sm:px-6 py-2.5 sm:py-3 transition-colors duration-200">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onclick="navigateTo('step1')">
         <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-500/20 flex-shrink-0">
           📈
         </div>
         <div>
-          <h1 class="font-extrabold text-xs sm:text-sm tracking-wider uppercase text-slate-100 leading-none">TRADING DECISION FLOW</h1>
-          <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5">Step-by-Step Checklist</p>
+          <h1 class="font-extrabold text-xs sm:text-sm tracking-wider uppercase text-slate-900 dark:text-slate-100 leading-none">TRADING DECISION FLOW</h1>
+          <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Step-by-Step Checklist</p>
         </div>
       </div>
       
+      <!-- Right Header Actions (Theme Toggle, Admin, Home) -->
       <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Theme Toggle Button -->
+        <button type="button" onclick="toggleTheme()" class="p-1.5 sm:px-2.5 sm:py-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-700/60 transition cursor-pointer flex items-center gap-1 active:scale-95" title="Toggle Theme">
+          <span id="themeIcon" class="text-xs sm:text-sm">🌙</span>
+          <span id="themeText" class="hidden sm:inline text-[11px] font-medium">Dark</span>
+        </button>
+
+        <!-- Admin Button -->
         <button type="button" onclick="openAdminModal()" class="px-2.5 sm:px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[11px] sm:text-xs rounded-lg flex items-center gap-1 transition shadow-sm cursor-pointer active:scale-95">
           <span>⚙️</span>
           <span>Admin</span>
         </button>
-        <button type="button" onclick="navigateTo('step1')" class="p-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700/60 transition cursor-pointer active:scale-95" title="Home">
+
+        <!-- Reset to Home Button -->
+        <button type="button" onclick="navigateTo('step1')" class="p-1.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-300 dark:border-slate-700/60 transition cursor-pointer active:scale-95" title="Home">
           🏠
         </button>
       </div>
@@ -65,26 +72,26 @@
   </header>
 
   <!-- STICKY STEP TITLE & BREADCRUMBS BAR -->
-  <div class="sticky top-[49px] sm:top-[57px] z-30 bg-[#060911]/95 backdrop-blur-md border-b border-slate-800/60 py-2 px-3.5 sm:px-4 shadow-md">
+  <div class="sticky top-[49px] sm:top-[57px] z-30 bg-white/95 border-b border-slate-200 dark:bg-[#060911]/95 dark:border-slate-800/60 backdrop-blur-md py-2 px-3.5 sm:px-4 shadow-sm transition-colors duration-200">
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center gap-1.5 sm:gap-2 mb-0.5 overflow-x-auto no-scrollbar py-0.5">
-        <span id="stepBadge" class="text-[9px] sm:text-[10px] font-bold tracking-wider text-blue-400 bg-blue-950/80 border border-blue-800/80 px-2 py-0.5 rounded uppercase font-mono whitespace-nowrap flex-shrink-0">
+        <span id="stepBadge" class="text-[9px] sm:text-[10px] font-bold tracking-wider text-blue-600 bg-blue-50 border border-blue-200 dark:text-blue-400 dark:bg-blue-950/80 dark:border-blue-800/80 px-2 py-0.5 rounded uppercase font-mono whitespace-nowrap flex-shrink-0">
           STEP 1: TREND DIRECTION
         </span>
-        <nav id="breadcrumbs" class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-400 overflow-x-auto whitespace-nowrap"></nav>
+        <nav id="breadcrumbs" class="flex items-center gap-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 overflow-x-auto whitespace-nowrap"></nav>
       </div>
-      <h2 id="pageTitle" class="text-base sm:text-xl font-bold text-slate-100 tracking-tight line-clamp-1">Loading...</h2>
+      <h2 id="pageTitle" class="text-base sm:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight line-clamp-1">Loading...</h2>
     </div>
   </div>
 
   <!-- MAIN WRAPPER -->
   <main class="max-w-6xl mx-auto w-full px-3 sm:px-4 py-3 sm:py-4 flex-1">
 
-    <!-- VIDEO CONTAINER WITH AUDIO TOGGLE OVERLAY -->
-    <div id="videoSection" class="mb-3.5 sm:mb-4 w-full bg-black border border-slate-800/90 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl relative aspect-video max-h-[460px]">
+    <!-- VIDEO CONTAINER -->
+    <div id="videoSection" class="mb-3.5 sm:mb-4 w-full bg-black border border-slate-300 dark:border-slate-800/90 rounded-xl sm:rounded-2xl overflow-hidden shadow-xl relative aspect-video max-h-[460px]">
       <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
       
-      <!-- Tap to Unmute Overlay Button -->
+      <!-- Audio Toggle Button -->
       <button id="soundToggleBtn" onclick="toggleAudio(event)" class="absolute bottom-2.5 right-2.5 z-20 bg-slate-950/80 hover:bg-slate-900 border border-slate-700/80 text-white text-[11px] sm:text-xs px-2.5 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur shadow-lg active:scale-95 transition">
         <span id="soundIcon">🔇</span>
         <span id="soundText">Tap to Unmute</span>
@@ -92,30 +99,30 @@
     </div>
 
     <!-- Description Paragraph -->
-    <p id="pageDesc" class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-3.5 font-normal px-0.5"></p>
+    <p id="pageDesc" class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed mb-3.5 font-normal px-0.5"></p>
 
     <!-- EXECUTION CHECKLIST CARD -->
-    <div id="checklistCard" class="bg-[#0b1222] border border-slate-800/80 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 shadow-sm">
-      <div class="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-400 mb-2">
+    <div id="checklistCard" class="bg-white border border-slate-200 text-slate-700 dark:bg-[#0b1222] dark:border-slate-800/80 dark:text-slate-300 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 shadow-sm transition-colors duration-200">
+      <div class="flex items-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
         <span>☑</span>
         <span>EXECUTION CHECKLIST</span>
       </div>
-      <div id="checklistsList" class="space-y-1.5 sm:space-y-2 text-xs text-slate-300"></div>
+      <div id="checklistsList" class="space-y-1.5 sm:space-y-2 text-xs"></div>
     </div>
 
-    <!-- BUTTONS GRID (Mobile 2-Column / Desktop 4-Column) -->
+    <!-- BUTTONS GRID (Mobile 2-Cols / Desktop 4-Cols) -->
     <div id="buttonsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6 sm:mb-8"></div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-slate-800/60 py-3 px-4 sm:px-6 text-[10px] sm:text-xs text-slate-500 bg-[#060911] flex flex-col sm:flex-row items-center justify-between gap-1.5 text-center sm:text-left">
+  <footer class="border-t border-slate-200 bg-white text-slate-500 dark:border-slate-800/60 dark:bg-[#060911] dark:text-slate-500 py-3 px-4 sm:px-6 text-[10px] sm:text-xs flex flex-col sm:flex-row items-center justify-between gap-1.5 text-center sm:text-left transition-colors duration-200">
     <p>Trading Decision Engine &copy; 2026</p>
     <p class="text-slate-400 text-[10px]">Always calculate risk management before entering position</p>
   </footer>
 
   <!-- ADMIN EDIT MODAL -->
   <div id="adminModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
-    <div class="bg-[#0c1322] border border-slate-800 rounded-t-2xl sm:rounded-2xl max-w-2xl w-full max-h-[94vh] sm:max-h-[90vh] flex flex-col shadow-2xl">
+    <div class="bg-[#0c1322] border border-slate-800 rounded-t-2xl sm:rounded-2xl max-w-2xl w-full max-h-[94vh] sm:max-h-[90vh] flex flex-col shadow-2xl text-slate-100">
       
       <!-- Modal Header -->
       <div class="p-3.5 sm:p-4 border-b border-slate-800 flex justify-between items-center">
@@ -137,7 +144,7 @@
         <p id="adminAuthErr" class="text-rose-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
       </div>
 
-      <!-- Admin Editor Form -->
+      <!-- Admin Content Form -->
       <div id="adminContentSection" class="p-4 sm:p-6 overflow-y-auto space-y-3.5 flex-1 hidden text-xs">
         <div class="p-2.5 bg-blue-950/30 border border-blue-800/40 rounded-xl text-blue-300 flex items-center justify-between">
           <span>Editing ID: <strong id="adminPageIdDisplay" class="font-mono text-white"></strong></span>
@@ -191,17 +198,34 @@
     let currentEditButtons = [];
     let isAdminLoggedIn = false;
     let currentVideoElement = null;
-    let isUserAudioAllowed = false; // User screen ထိပြီး အသံခွင့်ပြုပြီး/မပြီး အခြေအနေ
+    let isUserAudioAllowed = false;
 
-    function openAdminModal() {
-      document.getElementById('adminModal').classList.remove('hidden');
-      if (isAdminLoggedIn) loadCurrentPageForEdit();
-    }
-    function closeAdminModal() {
-      document.getElementById('adminModal').classList.add('hidden');
+    // THEME CONTROLS (LIGHT / DARK SWITCHER)
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        updateThemeUI(false);
+      } else {
+        document.documentElement.classList.add('dark');
+        updateThemeUI(true);
+      }
     }
 
-    // AUDIO UNMUTE LOGIC
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateThemeUI(isDark);
+    }
+
+    function updateThemeUI(isDark) {
+      const icon = document.getElementById('themeIcon');
+      const text = document.getElementById('themeText');
+      if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+      if (text) text.textContent = isDark ? 'Dark' : 'Light';
+    }
+
+    // AUDIO UNMUTE CONTROLS
     function toggleAudio(e) {
       if (e) e.stopPropagation();
       if (!currentVideoElement) return;
@@ -223,7 +247,6 @@
       }
     }
 
-    // User သည် Screen ပေါ် ဘယ်နေရာမဆို ပထမဆုံး အကြိမ် ထိ/နှိပ်လိုက်သည်နှင့် Audio ကို အလိုအလျောက် Unlock ပြုလုပ်ပေးခြင်း
     function setupGlobalAudioUnlock() {
       const unlockAudioOnFirstTouch = () => {
         if (!isUserAudioAllowed && currentVideoElement) {
@@ -240,7 +263,16 @@
       document.addEventListener('touchstart', unlockAudioOnFirstTouch, { once: true });
     }
 
-    // BROWSER BACK / FORWARD NAVIGATION (HTML5 History API)
+    // ADMIN MODAL CONTROLS
+    function openAdminModal() {
+      document.getElementById('adminModal').classList.remove('hidden');
+      if (isAdminLoggedIn) loadCurrentPageForEdit();
+    }
+    function closeAdminModal() {
+      document.getElementById('adminModal').classList.add('hidden');
+    }
+
+    // BROWSER HISTORY CONTROLS
     window.addEventListener('popstate', (event) => {
       const stepId = event.state?.stepId || getStepFromUrl() || 'step1';
       syncHistoryStack(stepId);
@@ -261,7 +293,10 @@
       }
     }
 
+    // SYSTEM INIT
     async function initSystem() {
+      initTheme();
+
       try {
         const supabaseLib = window.supabase || window.Supabase;
         if (!supabaseLib) throw new Error("Supabase Library load မဖြစ်ပါ။");
@@ -330,7 +365,6 @@
           video.controls = true;
           video.autoplay = true;
           video.playsInline = true;
-          // User အသံဖွင့်ထားပြီးသား ဖြစ်ပါက နောက် step အသစ်များတွင် အသံပါ တန်းပွင့်မည်
           video.muted = !isUserAudioAllowed;
           video.className = "w-full h-full object-contain";
 
@@ -339,7 +373,6 @@
           updateSoundButtonUI(video.muted);
 
           video.play().catch(() => {
-            // Autoplay ပိတ်ပင်ခံရပါက muted ဖြင့် အရင်ပြေးပေးခြင်း
             video.muted = true;
             video.play();
             updateSoundButtonUI(true);
@@ -370,43 +403,43 @@
 
       items.forEach(text => {
         const row = document.createElement('div');
-        row.className = "flex items-center gap-2 text-slate-300";
-        row.innerHTML = `<span class="w-3.5 h-3.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-[9px] text-emerald-400 font-bold flex-shrink-0">✓</span><span class="text-[11px] sm:text-xs">${text}</span>`;
+        row.className = "flex items-center gap-2 text-slate-600 dark:text-slate-300";
+        row.innerHTML = `<span class="w-3.5 h-3.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-[9px] text-emerald-600 dark:text-emerald-400 font-bold flex-shrink-0">✓</span><span class="text-[11px] sm:text-xs">${text}</span>`;
         clList.appendChild(row);
       });
 
-      // Buttons Grid (Responsive for Mobile 2-cols)
+      // Buttons Grid Rendering (Light & Dark Theme Adaptive)
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
 
       if (!buttons || buttons.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-2 lg:col-span-4 p-6 sm:p-8 text-center bg-[#0c1322] border border-dashed border-slate-800 rounded-2xl text-slate-400 text-xs">
+          <div class="col-span-2 lg:col-span-4 p-6 sm:p-8 text-center bg-white border border-dashed border-slate-300 dark:bg-[#0c1322] dark:border-slate-800 rounded-2xl text-slate-500 dark:text-slate-400 text-xs">
             💡 ဤ Page တွင် Option ခလုတ်များ မရှိသေးပါ။ ညာဘက်အပေါ်ရှိ <strong>Admin Panel</strong> ကိုနှိပ်၍ ထည့်သွင်းနိုင်ပါသည်။
           </div>`;
       } else {
         buttons.forEach(btn => {
           const card = document.createElement('div');
           card.onclick = () => navigateTo(btn.target_step);
-          card.className = "bg-[#0c1322] border border-slate-800 hover:border-blue-500/60 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 cursor-pointer transition-all duration-200 transform active:scale-95 sm:hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
+          card.className = "bg-white border border-slate-200 text-slate-800 shadow-sm hover:shadow-md hover:border-blue-500/60 dark:bg-[#0c1322] dark:border-slate-800 dark:text-slate-100 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 cursor-pointer transition-all duration-200 transform active:scale-95 sm:hover:-translate-y-1 flex flex-col justify-between group";
 
-          const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                             btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                             btn.tag_color === 'amber' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                             'bg-blue-500/10 text-blue-400 border-blue-500/20';
+          const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' :
+                             btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30' :
+                             btn.tag_color === 'amber' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30' :
+                             'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30';
 
           card.innerHTML = `
             <div>
               <div class="flex items-center justify-between mb-1.5 sm:mb-2">
                 <span class="text-[8px] sm:text-[9px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded border uppercase tracking-wider ${badgeColor}">${btn.tag || 'OPTION'}</span>
-                <span class="text-slate-500 group-hover:text-blue-400 transition text-[10px] sm:text-xs">↗</span>
+                <span class="text-slate-400 group-hover:text-blue-500 transition text-[10px] sm:text-xs">↗</span>
               </div>
-              <h3 class="font-extrabold text-xs sm:text-base text-slate-100 mb-0.5 sm:mb-1 group-hover:text-blue-400 transition leading-tight">${btn.label}</h3>
-              <p class="text-[10px] sm:text-xs text-slate-400 mb-2 sm:mb-3 line-clamp-1">${btn.subtitle || ''}</p>
+              <h3 class="font-extrabold text-xs sm:text-base text-slate-900 dark:text-slate-100 mb-0.5 sm:mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition leading-tight">${btn.label}</h3>
+              <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-2 sm:mb-3 line-clamp-1">${btn.subtitle || ''}</p>
             </div>
             ${btn.image_url ? `
-              <div class="w-full h-28 sm:h-44 bg-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex items-center justify-center overflow-hidden border border-slate-200">
+              <div class="w-full h-28 sm:h-44 bg-slate-50 dark:bg-white rounded-lg sm:rounded-xl p-1.5 sm:p-2 flex items-center justify-center overflow-hidden border border-slate-200">
                 <img src="${btn.image_url}" class="max-h-full max-w-full object-contain">
               </div>
             ` : ''}
@@ -434,7 +467,7 @@
       bc.innerHTML = '';
       historyStack.forEach((step, idx) => {
         const item = document.createElement('span');
-        item.className = `cursor-pointer transition ${idx === historyStack.length - 1 ? 'text-blue-400 font-bold' : 'hover:text-slate-200 text-slate-400'}`;
+        item.className = `cursor-pointer transition ${idx === historyStack.length - 1 ? 'text-blue-600 dark:text-blue-400 font-bold' : 'hover:text-slate-900 text-slate-500 dark:hover:text-slate-200 dark:text-slate-400'}`;
         item.textContent = step;
         item.onclick = () => {
           historyStack = historyStack.slice(0, idx + 1);
@@ -445,7 +478,7 @@
         if (idx < historyStack.length - 1) {
           const sep = document.createElement('span');
           sep.textContent = '>';
-          sep.className = 'text-slate-600 select-none text-[10px]';
+          sep.className = 'text-slate-400 dark:text-slate-600 select-none text-[10px]';
           bc.appendChild(sep);
         }
       });
