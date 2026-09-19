@@ -17,11 +17,12 @@
         extend: {
           colors: {
             trade: {
-              bg: '#070a12',
-              card: '#0f172a',
-              cardHover: '#1e293b',
-              border: '#1e293b',
-              accent: '#3b82f6'
+              bg: '#0b0f19',
+              card: '#151c2c',
+              border: '#232e47',
+              accent: '#3b82f6',
+              bull: '#10b981',
+              bear: '#ef4444'
             }
           }
         }
@@ -29,137 +30,118 @@
     }
   </script>
   <style>
-    /* Custom Scrollbar */
+    /* Custom Scrollbar matching original dark theme */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #070a12; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #232e47; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
   </style>
 </head>
-<body class="min-h-screen bg-trade-bg text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white antialiased">
+<body class="min-h-screen bg-trade-bg text-slate-100 flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
-  <!-- TOP HEADER -->
-  <header class="border-b border-slate-800/80 bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-30 px-6 py-3.5">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
+  <!-- HEADER -->
+  <header class="border-b border-trade-border bg-slate-950/60 backdrop-blur-md sticky top-0 z-30 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('step1')">
-        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-lg shadow-inner">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
           📈
         </div>
         <div>
-          <h1 class="font-extrabold text-sm tracking-wider uppercase text-slate-100">TRADING DECISION FLOW</h1>
-          <p class="text-[11px] text-slate-400 font-medium">Step-by-Step Entry Checklist System</p>
+          <h1 class="font-bold text-base leading-tight tracking-wide">TRADING DECISION FLOW</h1>
+          <p class="text-xs text-slate-400">Step-by-Step Entry Checklist System</p>
         </div>
       </div>
-      
-      <div class="flex items-center gap-3">
-        <button type="button" onclick="openAdminModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg flex items-center gap-1.5 transition shadow-lg shadow-blue-600/20 cursor-pointer">
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="openAdminModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-trade-border flex items-center gap-1.5 transition cursor-pointer">
           <span>⚙️</span>
-          <span>Admin Panel</span>
+          <span>Admin</span>
         </button>
-        <button type="button" onclick="navigateTo('step1')" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 transition cursor-pointer" title="Home">
-          🏠
+        <button type="button" onclick="navigateTo('step1')" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-trade-border transition cursor-pointer" title="Reset Flow">
+          🔄
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER -->
-  <main class="max-w-6xl mx-auto w-full px-4 py-6 flex-1">
-    
-    <!-- Step Badge & Breadcrumbs -->
-    <div class="flex items-center gap-2 mb-2">
-      <span id="stepBadge" class="text-[10px] font-extrabold tracking-wider text-blue-400 bg-blue-950/60 border border-blue-800/50 px-2.5 py-1 rounded-md uppercase">
-        STEP 1: TREND DIRECTION
-      </span>
-      <nav id="breadcrumbs" class="flex items-center gap-1.5 text-xs text-slate-500 ml-2 overflow-x-auto"></nav>
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto w-full p-4 flex-1">
+    <!-- Breadcrumbs -->
+    <nav id="breadcrumbs" class="flex items-center gap-2 text-xs text-slate-400 mb-4 overflow-x-auto py-1"></nav>
+
+    <!-- Page Title & Description -->
+    <div class="mb-6 text-center max-w-2xl mx-auto">
+      <h2 id="pageTitle" class="text-2xl font-bold text-slate-100 mb-1">Loading...</h2>
+      <p id="pageDesc" class="text-sm text-slate-400"></p>
     </div>
 
-    <!-- Page Title -->
-    <h2 id="pageTitle" class="text-2xl md:text-3xl font-bold text-slate-100 mb-4 tracking-tight">Loading...</h2>
-
-    <!-- VIDEO PLAYER CONTAINER -->
-    <div id="videoSection" class="mb-5 w-full bg-[#030712] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative aspect-video max-h-[520px]">
-      <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
-    </div>
-
-    <!-- Description Paragraph -->
-    <p id="pageDesc" class="text-slate-300 text-xs md:text-sm leading-relaxed mb-4 font-normal"></p>
-
-    <!-- EXECUTION CHECKLIST CARD -->
-    <div id="checklistCard" class="bg-[#0b1120] border border-slate-800/90 rounded-xl p-4 mb-8 hidden shadow-md">
-      <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">
-        <span>☑</span>
-        <span>EXECUTION CHECKLIST</span>
+    <!-- Video Container -->
+    <div id="videoSection" class="mb-8 max-w-3xl mx-auto hidden">
+      <div class="bg-black/80 border border-trade-border rounded-2xl overflow-hidden shadow-xl aspect-video relative">
+        <div id="videoContainer" class="w-full h-full flex items-center justify-center"></div>
       </div>
-      <div id="checklistsList" class="space-y-2.5 text-xs text-slate-300"></div>
     </div>
 
-    <!-- BUTTONS / OPTIONS GRID -->
-    <div id="buttonsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10"></div>
+    <!-- Next Buttons / Options Grid (4-Column Card Layout) -->
+    <div id="buttonsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"></div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 bg-[#070a12]">
-    <p>Trading Decision Flow &copy; 2026. Systematic Execution Architecture.</p>
+  <footer class="border-t border-trade-border py-4 text-center text-xs text-slate-500 bg-slate-950/40">
+    <p>Trading Entry Guide &copy; 2026. Dynamic Flow System.</p>
   </footer>
 
-  <!-- ADMIN EDIT MODAL -->
-  <div id="adminModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
-    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl">
+  <!-- ADMIN MODAL -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-trade-card border border-trade-border rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl">
       
       <!-- Modal Header -->
-      <div class="p-4 border-b border-slate-800 flex justify-between items-center">
-        <h3 class="font-bold text-base flex items-center gap-2 text-slate-200">
-          <span>⚙️</span> Management Panel
+      <div class="p-4 border-b border-trade-border flex justify-between items-center">
+        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-200">
+          <span>⚙️</span> Admin Management Panel
         </h3>
         <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">✕</button>
       </div>
 
-      <!-- Admin Pass Section -->
-      <div id="adminAuthSection" class="p-8 text-center">
-        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Password ဖြည့်ပါ</p>
-        <input type="password" id="adminPassInput" class="w-full max-w-xs bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center" placeholder="Password">
+      <!-- Admin Auth View -->
+      <div id="adminAuthSection" class="p-6 text-center">
+        <p class="text-slate-300 text-sm mb-4">Admin Panel သို့ဝင်ရောက်ရန် Admin Password ကိုဖြည့်ပါ။</p>
+        <input type="password" id="adminPassInput" placeholder="Enter Admin Password" class="w-full max-w-xs bg-slate-900 border border-trade-border rounded-xl px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-blue-500 text-center text-white">
         <br>
-        <button type="button" onclick="verifyAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2.5 rounded-xl font-medium transition cursor-pointer">Login</button>
-        <p id="adminAuthErr" class="text-rose-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
+        <button type="button" onclick="verifyAdmin()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2.5 rounded-xl font-medium transition cursor-pointer">Login Admin</button>
+        <p id="adminAuthErr" class="text-red-400 text-xs mt-2 hidden">Password မှားယွင်းနေပါသည်။</p>
       </div>
 
-      <!-- Admin Management Form -->
-      <div id="adminContentSection" class="p-6 overflow-y-auto space-y-5 flex-1 hidden">
+      <!-- Admin Content View -->
+      <div id="adminContentSection" class="p-6 overflow-y-auto space-y-6 flex-1 hidden">
         <div>
-          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select / Add Page</label>
+          <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select Page to Edit</label>
           <div class="flex gap-2">
-            <select id="adminPageSelect" onchange="loadPageForEdit()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></select>
+            <select id="adminPageSelect" onchange="loadPageForEdit()" class="flex-1 bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></select>
             <button type="button" onclick="addNewPagePrompt()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 text-xs rounded-xl font-medium transition cursor-pointer">
-              + New Step Page
+              + New Page
             </button>
           </div>
         </div>
 
-        <div class="space-y-3">
+        <div class="space-y-4">
           <div>
             <label class="block text-xs text-slate-400 mb-1">Page Title</label>
-            <input type="text" id="editPageTitle" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+            <input type="text" id="editPageTitle" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Description</label>
-            <textarea id="editPageDesc" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
+            <label class="block text-xs text-slate-400 mb-1">Page Description</label>
+            <textarea id="editPageDesc" rows="2" class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
           </div>
           <div>
-            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 / Direct Link)</label>
-            <input type="text" id="editPageVideo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">Execution Checklist (တစ်ကြောင်းလျှင် တစ်ခု ရေးပါ)</label>
-            <textarea id="editChecklist" rows="3" placeholder="Item 1&#10;Item 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
+            <label class="block text-xs text-slate-400 mb-1">Video URL (MP4 Link or Embed)</label>
+            <input type="text" id="editPageVideo" placeholder="https://..." class="w-full bg-slate-900 border border-trade-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
           </div>
         </div>
 
-        <!-- Buttons Section -->
-        <div class="border-t border-slate-800 pt-4">
+        <div class="border-t border-trade-border pt-4">
           <div class="flex justify-between items-center mb-3">
-            <h4 class="font-semibold text-sm text-slate-200">Action Buttons</h4>
-            <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/30 text-blue-400 hover:bg-blue-600/30 px-3 py-1.5 rounded-lg cursor-pointer">
+            <h4 class="font-semibold text-sm text-slate-200">Action Buttons / Options</h4>
+            <button type="button" onclick="addNewButtonField()" class="text-xs bg-blue-600/20 border border-blue-500/40 text-blue-400 hover:bg-blue-600/30 px-3 py-1 rounded-lg cursor-pointer">
               + Add Button
             </button>
           </div>
@@ -167,9 +149,11 @@
         </div>
       </div>
 
-      <div id="adminFooter" class="p-4 border-t border-slate-800 flex justify-end gap-2 bg-slate-950/60 hidden">
-        <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-lg">
-          Save All Changes
+      <!-- Modal Footer -->
+      <div id="adminFooter" class="p-4 border-t border-trade-border flex justify-end items-center bg-slate-950/50 hidden">
+        <button type="button" onclick="saveChangesToSupabase()" id="saveBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-2 cursor-pointer">
+          <span>💾</span>
+          <span>Save All Changes</span>
         </button>
       </div>
 
@@ -183,16 +167,20 @@
     let allPages = [];
     let currentEditButtons = [];
 
-    function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
-    function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+    function openAdminModal() {
+      document.getElementById('adminModal').classList.remove('hidden');
+    }
+    function closeAdminModal() {
+      document.getElementById('adminModal').classList.add('hidden');
+    }
 
     async function initSystem() {
       try {
         const supabaseLib = window.supabase || window.Supabase;
-        if (!supabaseLib) throw new Error("Supabase JS Library load မဖြစ်ပါ။");
+        if (!supabaseLib) throw new Error("Supabase Library load မဖြစ်ပါ။");
 
         const res = await fetch('/api/config');
-        if (!res.ok) throw new Error(`/api/config ရှာမတွေ့ပါ (${res.status})`);
+        if (!res.ok) throw new Error(`/api/config API route ကို ရှာမတွေ့ပါ (${res.status})`);
         const config = await res.json();
 
         supabaseClient = supabaseLib.createClient(config.supabaseUrl, config.supabaseKey);
@@ -231,12 +219,10 @@
         return;
       }
 
-      // Badge & Title
-      document.getElementById('stepBadge').textContent = (page.id === 'step1') ? "STEP 1: TREND DIRECTION" : page.id.toUpperCase();
       document.getElementById('pageTitle').textContent = page.title;
       document.getElementById('pageDesc').textContent = page.description || '';
 
-      // Video Render
+      // Video Setup
       const videoSec = document.getElementById('videoSection');
       const videoCont = document.getElementById('videoContainer');
       videoCont.innerHTML = '';
@@ -254,7 +240,7 @@
           videoCont.appendChild(video);
         } else {
           const iframe = document.createElement('iframe');
-          iframe.src = page.video_url;
+          iframe.src = page.video_url + "?autoplay=1&mute=1";
           iframe.className = "w-full h-full border-0";
           iframe.allow = "autoplay; encrypted-media";
           videoCont.appendChild(iframe);
@@ -263,24 +249,7 @@
         videoSec.classList.add('hidden');
       }
 
-      // Checklist Render
-      const clCard = document.getElementById('checklistCard');
-      const clList = document.getElementById('checklistsList');
-      clList.innerHTML = '';
-
-      if (page.checklist && page.checklist.length > 0) {
-        clCard.classList.remove('hidden');
-        page.checklist.forEach(item => {
-          const row = document.createElement('div');
-          row.className = "flex items-center gap-2 text-slate-300";
-          row.innerHTML = `<span class="text-emerald-400 font-bold">✓</span><span>${item}</span>`;
-          clList.appendChild(row);
-        });
-      } else {
-        clCard.classList.add('hidden');
-      }
-
-      // Buttons Render
+      // Buttons Grid (Original HTML Palette & Layout)
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       const grid = document.getElementById('buttonsGrid');
       grid.innerHTML = '';
@@ -288,7 +257,7 @@
       (buttons || []).forEach(btn => {
         const card = document.createElement('div');
         card.onclick = () => navigateTo(btn.target_step);
-        card.className = "bg-[#0b1120] border border-slate-800/80 hover:border-blue-500/60 rounded-xl overflow-hidden cursor-pointer transition-all duration-200 transform hover:-translate-y-1 group flex flex-col justify-between shadow-lg";
+        card.className = "bg-trade-card border border-trade-border hover:border-blue-500/60 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group shadow-lg";
 
         const badgeColor = btn.tag_color === 'green' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
                            btn.tag_color === 'red' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
@@ -296,20 +265,19 @@
                            'bg-blue-500/10 text-blue-400 border-blue-500/20';
 
         card.innerHTML = `
-          <div class="p-3.5 pb-2">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${badgeColor}">
-                ${btn.tag || 'OPTION'}
-              </span>
-              <span class="text-slate-500 group-hover:text-blue-400 transition text-xs">↗</span>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${btn.tag || 'OPTION'}</span>
+              <span class="text-slate-500 group-hover:text-blue-400 transition text-sm">↗</span>
             </div>
-            <h3 class="font-extrabold text-sm text-slate-100 group-hover:text-blue-400 transition">${btn.label}</h3>
-            ${btn.subtitle ? `<p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">${btn.subtitle}</p>` : ''}
+            <h3 class="font-bold text-lg text-slate-100 mb-1 group-hover:text-blue-400 transition">${btn.label}</h3>
+            <p class="text-xs text-slate-400 mb-3">${btn.subtitle || ''}</p>
           </div>
-          
-          <div class="w-full h-44 bg-white/5 border-t border-slate-800/60 p-2 flex items-center justify-center overflow-hidden">
-            ${btn.image_url ? `<img src="${btn.image_url}" class="max-h-full max-w-full object-contain">` : `<div class="text-slate-600 text-xs">No Preview Image</div>`}
-          </div>
+          ${btn.image_url ? `
+            <div class="w-full h-36 bg-slate-950/80 border border-trade-border rounded-xl p-2 flex items-center justify-center overflow-hidden">
+              <img src="${btn.image_url}" class="max-h-full max-w-full object-contain">
+            </div>
+          ` : ''}
         `;
         grid.appendChild(card);
       });
@@ -318,7 +286,9 @@
     }
 
     function navigateTo(stepId) {
-      if (historyStack[historyStack.length - 1] !== stepId) historyStack.push(stepId);
+      if (historyStack[historyStack.length - 1] !== stepId) {
+        historyStack.push(stepId);
+      }
       renderPage(stepId);
     }
 
@@ -327,13 +297,14 @@
       bc.innerHTML = '';
       historyStack.forEach((step, idx) => {
         const item = document.createElement('span');
-        item.className = `cursor-pointer ${idx === historyStack.length - 1 ? 'text-blue-400 font-semibold' : 'hover:text-slate-300'}`;
+        item.className = `cursor-pointer ${idx === historyStack.length - 1 ? 'text-blue-400 font-bold' : 'hover:text-slate-200'}`;
         item.textContent = step;
         item.onclick = () => {
           historyStack = historyStack.slice(0, idx + 1);
           renderPage(step);
         };
         bc.appendChild(item);
+
         if (idx < historyStack.length - 1) {
           const sep = document.createElement('span');
           sep.textContent = '>';
@@ -365,14 +336,13 @@
       const pageId = prompt("Page ID အသစ်ပေးပါ (e.g. step2_hhtohl):");
       if (!pageId) return;
       const formattedId = pageId.trim().toLowerCase().replace(/\s+/g, '_');
-      const title = prompt("Page Title:") || "New Decision Step";
+      const title = prompt("Page Title:") || "New Step";
 
       await supabaseClient.from('pages').insert([{
         id: formattedId,
         title: title,
         description: '',
-        video_url: '',
-        checklist: []
+        video_url: ''
       }]);
 
       await fetchAllPagesList();
@@ -390,7 +360,6 @@
       document.getElementById('editPageTitle').value = page.title || '';
       document.getElementById('editPageDesc').value = page.description || '';
       document.getElementById('editPageVideo').value = page.video_url || '';
-      document.getElementById('editChecklist').value = (page.checklist || []).join('\n');
 
       const { data: buttons } = await supabaseClient.from('buttons').select('*').eq('page_id', pageId).order('order_index');
       currentEditButtons = buttons || [];
@@ -403,26 +372,27 @@
 
       currentEditButtons.forEach((btn, i) => {
         const div = document.createElement('div');
-        div.className = "bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs space-y-2";
+        div.className = "bg-slate-900 border border-trade-border rounded-xl p-3 text-xs space-y-2";
         div.innerHTML = `
           <div class="flex justify-between items-center">
             <span class="text-blue-400 font-bold">Button #${i + 1}</span>
             <button type="button" onclick="removeButton(${i})" class="text-rose-400 hover:text-rose-300 cursor-pointer">🗑️ Delete</button>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" value="${btn.label || ''}" placeholder="Button Name (HH → HL)" oninput="currentEditButtons[${i}].label = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
-            <input type="text" value="${btn.target_step || ''}" placeholder="Target Page ID" oninput="currentEditButtons[${i}].target_step = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+            <input type="text" value="${btn.label || ''}" placeholder="Button Name" oninput="currentEditButtons[${i}].label = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            <input type="text" value="${btn.target_step || ''}" placeholder="Target Step ID" oninput="currentEditButtons[${i}].target_step = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" value="${btn.tag || ''}" placeholder="Tag Text (e.g. UPTREND RETRACE)" oninput="currentEditButtons[${i}].tag = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
-            <select onchange="currentEditButtons[${i}].tag_color = this.value" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+            <input type="text" value="${btn.tag || ''}" placeholder="Tag (e.g. UPTREND RETRACE)" oninput="currentEditButtons[${i}].tag = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+            <select onchange="currentEditButtons[${i}].tag_color = this.value" class="bg-slate-950 border border-trade-border rounded p-1.5 text-white">
               <option value="blue" ${btn.tag_color === 'blue' ? 'selected' : ''}>Blue Tag</option>
               <option value="green" ${btn.tag_color === 'green' ? 'selected' : ''}>Green Tag</option>
               <option value="red" ${btn.tag_color === 'red' ? 'selected' : ''}>Red Tag</option>
               <option value="amber" ${btn.tag_color === 'amber' ? 'selected' : ''}>Amber Tag</option>
             </select>
           </div>
-          <input type="text" value="${btn.image_url || ''}" placeholder="Card Diagram Image URL" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-900 border border-slate-800 rounded p-1.5 text-white">
+          <input type="text" value="${btn.subtitle || ''}" placeholder="Subtitle" oninput="currentEditButtons[${i}].subtitle = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
+          <input type="text" value="${btn.image_url || ''}" placeholder="Image URL" oninput="currentEditButtons[${i}].image_url = this.value" class="w-full bg-slate-950 border border-trade-border rounded p-1.5 text-white">
         `;
         container.appendChild(div);
       });
@@ -430,10 +400,10 @@
 
     function addNewButtonField() {
       currentEditButtons.push({
-        label: 'NEW OPTION',
+        label: 'New Button',
         subtitle: '',
         target_step: 'step1',
-        tag: 'TAG',
+        tag: 'OPTION',
         tag_color: 'blue',
         image_url: ''
       });
@@ -445,31 +415,24 @@
       renderAdminButtons();
     }
 
-    // Save Logic (Update DB -> Close Modal -> Re-render Instant)
     async function saveChangesToSupabase() {
       const pageId = document.getElementById('adminPageSelect').value;
       const title = document.getElementById('editPageTitle').value;
       const description = document.getElementById('editPageDesc').value;
       const video_url = document.getElementById('editPageVideo').value;
-      const checklist = document.getElementById('editChecklist').value
-        .split('\n')
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-
       const saveBtn = document.getElementById('saveBtn');
+
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
 
       try {
-        // ၁။ Pages table ကို Update ပြုလုပ်ခြင်း
         const { error: pageErr } = await supabaseClient
           .from('pages')
-          .update({ title, description, video_url, checklist })
+          .update({ title, description, video_url })
           .eq('id', pageId);
 
         if (pageErr) throw pageErr;
 
-        // ၂။ Button အဟောင်းများကို Delete ပြုလုပ်ခြင်း
         const { error: delErr } = await supabaseClient
           .from('buttons')
           .delete()
@@ -477,7 +440,6 @@
 
         if (delErr) throw delErr;
 
-        // ၃။ Button အသစ်များကို Insert ပြုလုပ်ခြင်း
         if (currentEditButtons.length > 0) {
           const toInsert = currentEditButtons.map((b, idx) => ({
             page_id: pageId,
@@ -498,17 +460,13 @@
         }
 
         alert('အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!');
-
-        // Modal ကို ပိတ်သိမ်းခြင်း
         closeAdminModal();
-
-        // ချက်ချင်း Live Update ဖြစ်စေရန် ပြန်လည် ဆွဲတင်ခြင်း
         await fetchAllPagesList();
         await renderPage(pageId);
 
       } catch (err) {
         console.error("Save Error:", err);
-        alert("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပေါ်ခဲ့သည်: " + (err.message || JSON.stringify(err)));
+        alert("သိမ်းဆည်းရာတွင် အမှားဖြစ်ပေါ်ခဲ့သည်: " + err.message);
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save All Changes';
